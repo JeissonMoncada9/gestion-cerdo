@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐖 Gestión de Ventas</title>
+    <link rel="stylesheet" href="css/estilo.css">
+    <style>
+        .filtros {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .filtros input, .filtros select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            flex: 1;
+            min-width: 150px;
+        }
+        .filtros button {
+            padding: 10px 20px;
+            background: #2d7d46;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .filtros button:hover {
+            background: #1e5a32;
+        }
+        .total-ventas {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin: 20px 0;
+            text-align: right;
+            font-size: 18px;
+        }
+        .total-ventas span {
+            font-weight: bold;
+            color: #2d7d46;
+            font-size: 24px;
+        }
+        .btn-accion {
+            display: inline-block;
+            margin: 10px 10px 20px 0;
+        }
+        .btn-eliminar {
+            padding: 5px 12px;
+            font-size: 12px;
+            background: #d32f2f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-eliminar:hover {
+            background: #b71c1c;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .badge-pendiente {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+        .badge-completado {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .estado-pendiente {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+        .estado-completado {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        .btn-limpiar {
+            background: #666 !important;
+        }
+        .btn-limpiar:hover {
+            background: #444 !important;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            background: white;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- MENÚ DE NAVEGACIÓN -->
+        <nav>
+            <h1>🐖 PORCINOS</h1>
+            <ul>
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="ventas.html" class="active">Ventas</a></li>
+                <li><a href="gastos.html">Gastos</a></li>
+            </ul>
+        </nav>
+
+        <!-- TÍTULO Y BOTÓN NUEVA VENTA -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0;">
+            <h2>📋 Registro de Ventas</h2>
+            <a href="nueva-venta.html" class="btn btn-accion">➕ Nueva Venta</a>
+        </div>
+
+        <!-- FILTROS -->
+        <div class="filtros">
+            <input type="text" id="filtro-cliente" placeholder="🔍 Buscar por cliente...">
+            <select id="filtro-estado">
+                <option value="todos">Todos los estados</option>
+                <option value="pendiente">⏳ Pendiente</option>
+                <option value="completado">✅ Completado</option>
+            </select>
+            <button id="btn-filtrar">🔍 Filtrar</button>
+            <button id="btn-limpiar" class="btn-limpiar">🧹 Limpiar</button>
+        </div>
+
+        <!-- TOTAL DE VENTAS -->
+        <div class="total-ventas">
+            💰 Total de ventas: <span id="total-ventas-valor">$0</span>
+        </div>
+
+        <!-- TABLA DE VENTAS -->
+        <div id="contenedor-tabla">
+            <table class="tabla" id="tabla-ventas">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Cliente</th>
+                        <th>Producto</th>
+                        <th>Total</th>
+                        <th>Pagado</th>
+                        <th>Deuda</th>
+                        <th>Estado</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpo-ventas">
+                    <!-- Se llena con JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <div id="sin-ventas" style="display: none; text-align: center; padding: 40px; background: white; border-radius: 12px;">
+            <p style="font-size: 20px;">📭 No hay ventas registradas</p>
+            <p style="color: #666;">Haz clic en "Nueva Venta" para comenzar</p>
+        </div>
+
+        <footer>
+            <p>🐖 Sistema de Gestión Porcina v1.0 | Total de ventas: <span id="total-ventas-pie">0</span></p>
+        </footer>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module">
+        import { supabaseClient } from './js/config.js';
+
+        console.log("📄 Página de ventas cargada");
+
+        // ============================================
+        // 1. CARGAR VENTAS DESDE SUPABASE
+        // ============================================
+        async function cargarVentas() {
+            try {
+                console.log("🔄 Cargando ventas desde Supabase...");
+
+                const { data, error } = await supabaseClient
+                    .from('ingresos')
+                    .select('*')
+                    .order('creado_en', { ascending: false });
+
+                if (error) {
+                    console.error("❌ Error:", error);
+                    alert("❌ Error al cargar las ventas: " + error.message);
+                    return;
+                }
+
+                // Actualizar totales
+                const totalVentas = data.reduce((sum, v) => sum + v.valor, 0);
+                document.getElementById('total-ventas-valor').textContent = `$${totalVentas.toLocaleString()}`;
+                document.getElementById('total-ventas-pie').textContent = data.length;
+
+                const tbody = document.getElementById('cuerpo-ventas');
+                tbody.innerHTML = '';
+
+                // Mostrar mensaje si no hay datos
+                if (data.length === 0) {
+                    document.getElementById('sin-ventas').style.display = 'block';
+                    document.getElementById('contenedor-tabla').style.display = 'none';
+                    return;
+                }
+
+                document.getElementById('sin-ventas').style.display = 'none';
+                document.getElementById('contenedor-tabla').style.display = 'block';
+
+                // Crear filas
+                data.forEach((venta, index) => {
+                    const estado = venta.pago_pendiente === 0 ? 'completado' : 'pendiente';
+                    const badgeClass = estado === 'completado' ? 'badge-completado' : 'badge-pendiente';
+                    const badgeText = estado === 'completado' ? '✅ Completado' : '⏳ Pendiente';
+
+                    const fila = document.createElement('tr');
+                    fila.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${venta.nombre}</td>
+                        <td>${venta.producto}</td>
+                        <td>$${venta.valor.toLocaleString()}</td>
+                        <td>$${venta.pago_realizado.toLocaleString()}</td>
+                        <td class="${estado === 'completado' ? 'estado-completado' : 'estado-pendiente'}">
+                            $${venta.pago_pendiente.toLocaleString()}
+                        </td>
+                        <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+                        <td>${venta.fecha_sacrificio || '-'}</td>
+                        <td>
+                            <a href="detalle-venta.html?id=${venta.id}" class="btn" style="padding: 5px 12px; font-size: 12px;">Ver</a>
+                            <button class="btn-eliminar" data-id="${venta.id}" data-nombre="${venta.nombre}">🗑️</button>
+                        </td>
+                    `;
+                    tbody.appendChild(fila);
+                });
+
+                // Event listeners para eliminar
+                document.querySelectorAll('.btn-eliminar').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = this.dataset.id;
+                        const nombre = this.dataset.nombre;
+                        eliminarVenta(id, nombre);
+                    });
+                });
+
+                console.log(`✅ ${data.length} ventas cargadas`);
+
+            } catch (error) {
+                console.error("❌ Error:", error);
+                alert("❌ Error al cargar las ventas: " + error.message);
+            }
+        }
+
+        // ============================================
+        // 2. ELIMINAR VENTA
+        // ============================================
+        async function eliminarVenta(id, nombre) {
+            if (!confirm(`⚠️ ¿Estás seguro de eliminar la venta de "${nombre}"?`)) return;
+
+            try {
+                const { error } = await supabaseClient
+                    .from('ingresos')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                alert(`✅ Venta de "${nombre}" eliminada correctamente`);
+                cargarVentas(); // Recargar
+
+            } catch (error) {
+                alert("❌ Error al eliminar: " + error.message);
+            }
+        }
+
+        // ============================================
+        // 3. FILTROS
+        // ============================================
+        document.getElementById('btn-filtrar').addEventListener('click', function() {
+            const filtroCliente = document.getElementById('filtro-cliente').value.toLowerCase().trim();
+            const filtroEstado = document.getElementById('filtro-estado').value;
+
+            const filas = document.querySelectorAll('#cuerpo-ventas tr');
+            let contador = 0;
+
+            filas.forEach(fila => {
+                const cliente = fila.querySelector('td:nth-child(2)')?.textContent?.toLowerCase() || '';
+                const estado = fila.querySelector('td:nth-child(7)')?.textContent?.includes('Completado') ? 'completado' : 'pendiente';
+
+                let mostrar = true;
+                if (filtroCliente && !cliente.includes(filtroCliente)) mostrar = false;
+                if (filtroEstado !== 'todos' && estado !== filtroEstado) mostrar = false;
+
+                fila.style.display = mostrar ? '' : 'none';
+                if (mostrar) contador++;
+            });
+
+            document.getElementById('total-ventas-pie').textContent = contador;
+        });
+
+        document.getElementById('btn-limpiar').addEventListener('click', function() {
+            document.getElementById('filtro-cliente').value = '';
+            document.getElementById('filtro-estado').value = 'todos';
+            document.querySelectorAll('#cuerpo-ventas tr').forEach(fila => fila.style.display = '');
+            const total = document.querySelectorAll('#cuerpo-ventas tr').length;
+            document.getElementById('total-ventas-pie').textContent = total;
+        });
+
+        // ============================================
+        // 4. EJECUTAR AL CARGAR
+        // ============================================
+        window.onload = cargarVentas;
+    </script>
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐖 Gestión de Gastos</title>
+    <link rel="stylesheet" href="css/estilo.css">
+    <style>
+        .total-gastos {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin: 20px 0;
+            text-align: right;
+            font-size: 18px;
+        }
+        .total-gastos span {
+            font-weight: bold;
+            color: #d4a373;
+            font-size: 24px;
+        }
+        .btn-accion {
+            display: inline-block;
+            margin: 10px 10px 20px 0;
+        }
+        .btn-eliminar {
+            padding: 5px 12px;
+            font-size: 12px;
+            background: #d32f2f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-eliminar:hover {
+            background: #b71c1c;
+        }
+        .categoria-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .categoria-purina { background: #fff3e0; color: #e65100; }
+        .categoria-compra { background: #e8f5e9; color: #2e7d32; }
+        .categoria-retiro { background: #fce4ec; color: #c62828; }
+        .categoria-veterinario { background: #e3f2fd; color: #0d47a1; }
+        .categoria-transporte { background: #f3e5f5; color: #6a1b9a; }
+        .categoria-otros { background: #f5f5f5; color: #616161; }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            background: white;
+            border-radius: 12px;
+        }
+        .btn-gasto {
+            background: #d4a373;
+        }
+        .btn-gasto:hover {
+            background: #b8895c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- MENÚ DE NAVEGACIÓN -->
+        <nav>
+            <h1>🐖 PORCINOS</h1>
+            <ul>
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="ventas.html">Ventas</a></li>
+                <li><a href="gastos.html" class="active">Gastos</a></li>
+            </ul>
+        </nav>
+
+        <!-- TÍTULO Y BOTÓN NUEVO GASTO -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0;">
+            <h2>📉 Registro de Gastos</h2>
+            <a href="nuevo-gasto.html" class="btn btn-accion btn-gasto">➕ Nuevo Gasto</a>
+        </div>
+
+        <!-- TOTAL DE GASTOS -->
+        <div class="total-gastos">
+            💰 Total de gastos: <span id="total-gastos-valor">$0</span>
+        </div>
+
+        <!-- TABLA DE GASTOS -->
+        <div id="contenedor-tabla">
+            <table class="tabla" id="tabla-gastos">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Categoría</th>
+                        <th>Concepto</th>
+                        <th>Monto</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpo-gastos">
+                    <!-- Se llena con JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <div id="sin-gastos" style="display: none; text-align: center; padding: 40px; background: white; border-radius: 12px;">
+            <p style="font-size: 20px;">📭 No hay gastos registrados</p>
+            <p style="color: #666;">Haz clic en "Nuevo Gasto" para comenzar</p>
+        </div>
+
+        <footer>
+            <p>🐖 Sistema de Gestión Porcina v1.0 | Total de gastos: <span id="total-gastos-pie">0</span></p>
+        </footer>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module">
+        import { supabaseClient } from './js/config.js';
+
+        console.log("📄 Página de gastos cargada");
+
+        // ============================================
+        // 1. CARGAR GASTOS DESDE SUPABASE
+        // ============================================
+        async function cargarGastos() {
+            try {
+                console.log("🔄 Cargando gastos desde Supabase...");
+
+                const { data, error } = await supabaseClient
+                    .from('gastos')
+                    .select('*')
+                    .order('creado_en', { ascending: false });
+
+                if (error) {
+                    console.error("❌ Error:", error);
+                    alert("❌ Error al cargar los gastos: " + error.message);
+                    return;
+                }
+
+                // Actualizar totales
+                const totalGastos = data.reduce((sum, v) => sum + v.monto, 0);
+                document.getElementById('total-gastos-valor').textContent = `$${totalGastos.toLocaleString()}`;
+                document.getElementById('total-gastos-pie').textContent = data.length;
+
+                const tbody = document.getElementById('cuerpo-gastos');
+                tbody.innerHTML = '';
+
+                // Mostrar mensaje si no hay datos
+                if (data.length === 0) {
+                    document.getElementById('sin-gastos').style.display = 'block';
+                    document.getElementById('contenedor-tabla').style.display = 'none';
+                    return;
+                }
+
+                document.getElementById('sin-gastos').style.display = 'none';
+                document.getElementById('contenedor-tabla').style.display = 'block';
+
+                // Mapeo de categorías
+                const categoriaMap = {
+                    'purina': '🌾 Purina',
+                    'compra_cerdos': '🐷 Compra cerdos',
+                    'retiro_dinero': '💰 Retiro',
+                    'veterinario': '💉 Veterinario',
+                    'transporte': '🚚 Transporte',
+                    'otros': '📦 Otros'
+                };
+
+                const categoriaClassMap = {
+                    'purina': 'categoria-purina',
+                    'compra_cerdos': 'categoria-compra',
+                    'retiro_dinero': 'categoria-retiro',
+                    'veterinario': 'categoria-veterinario',
+                    'transporte': 'categoria-transporte',
+                    'otros': 'categoria-otros'
+                };
+
+                // Crear filas
+                data.forEach((gasto, index) => {
+                    const categoriaLabel = categoriaMap[gasto.tipo_gasto] || gasto.tipo_gasto;
+                    const categoriaClass = categoriaClassMap[gasto.tipo_gasto] || 'categoria-otros';
+
+                    const fila = document.createElement('tr');
+                    fila.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td><span class="categoria-badge ${categoriaClass}">${categoriaLabel}</span></td>
+                        <td>${gasto.concepto}</td>
+                        <td>$${gasto.monto.toLocaleString()}</td>
+                        <td>${gasto.fecha}</td>
+                        <td>
+                            <button class="btn-eliminar" data-id="${gasto.id}" data-concepto="${gasto.concepto}">🗑️</button>
+                        </td>
+                    `;
+                    tbody.appendChild(fila);
+                });
+
+                // Event listeners para eliminar
+                document.querySelectorAll('.btn-eliminar').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = this.dataset.id;
+                        const concepto = this.dataset.concepto;
+                        eliminarGasto(id, concepto);
+                    });
+                });
+
+                console.log(`✅ ${data.length} gastos cargados`);
+
+            } catch (error) {
+                console.error("❌ Error:", error);
+                alert("❌ Error al cargar los gastos: " + error.message);
+            }
+        }
+
+        // ============================================
+        // 2. ELIMINAR GASTO
+        // ============================================
+        async function eliminarGasto(id, concepto) {
+            if (!confirm(`⚠️ ¿Estás seguro de eliminar el gasto "${concepto}"?`)) return;
+
+            try {
+                const { error } = await supabaseClient
+                    .from('gastos')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                alert(`✅ Gasto "${concepto}" eliminado correctamente`);
+                cargarGastos(); // Recargar
+
+            } catch (error) {
+                alert("❌ Error al eliminar: " + error.message);
+            }
+        }
+
+        // ============================================
+        // 3. EJECUTAR AL CARGAR
+        // ============================================
+        window.onload = cargarGastos;
+    </script>
+</body>
+</html>

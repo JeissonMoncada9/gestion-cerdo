@@ -1,0 +1,62 @@
+// js/pagos.js
+
+// Función para registrar un abono
+export function registrarAbono(ventaId, montoAbono, metodoPago) {
+    // 1. Validar que el monto sea mayor a 0
+    if (montoAbono <= 0) {
+        alert('❌ El monto debe ser mayor a cero');
+        return;
+    }
+
+    // 2. Obtener la venta actual (simulado por ahora)
+    // Esto luego vendrá de Supabase
+    const venta = {
+        id: ventaId,
+        valor: 598500,
+        pago_realizado: 300000,
+        pago_pendiente: 298500
+    };
+
+    // 3. Verificar que no esté pagada
+    if (venta.pago_pendiente === 0) {
+        alert('✅ Esta venta ya está completamente pagada');
+        return;
+    }
+
+    // 4. Verificar que el abono no supere la deuda
+    if (montoAbono > venta.pago_pendiente) {
+        const confirmar = confirm(
+            `⚠️ El abono ($${montoAbono.toLocaleString()}) supera la deuda ($${venta.pago_pendiente.toLocaleString()}).\n` +
+            `¿Deseas registrar el excedente como pago completo de la deuda?`
+        );
+        if (confirmar) {
+            montoAbono = venta.pago_pendiente; // Ajustar al monto exacto
+        } else {
+            return; // Cancelar
+        }
+    }
+
+    // 5. Calcular nuevos valores
+    const nuevoPagado = venta.pago_realizado + montoAbono;
+    const nuevoPendiente = venta.valor - nuevoPagado;
+    const estado = nuevoPendiente === 0 ? 'COMPLETADO' : 'PENDIENTE';
+
+    // 6. Mostrar resultado (simulado)
+    console.log('✅ Abono registrado:');
+    console.log(`📌 Monto: $${montoAbono.toLocaleString()}`);
+    console.log(`📌 Método: ${metodoPago}`);
+    console.log(`📌 Nuevo pendiente: $${nuevoPendiente.toLocaleString()}`);
+    console.log(`📌 Estado: ${estado}`);
+
+    // 7. Actualizar la interfaz (simulado)
+    alert(
+        `✅ Abono registrado exitosamente!\n\n` +
+        `💰 Monto: $${montoAbono.toLocaleString()}\n` +
+        `📌 Método: ${metodoPago}\n` +
+        `📉 Nuevo pendiente: $${nuevoPendiente.toLocaleString()}\n` +
+        `📊 Estado: ${estado}`
+    );
+
+    // 8. Recargar la página para ver los cambios (cuando sea real)
+    // location.reload();
+}

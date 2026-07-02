@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐖 Sistema de Gestión Porcina</title>
+    <link rel="stylesheet" href="css/estilo.css">
+    <style>
+        /* Estilos para el modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .modal-content h2 {
+            margin-bottom: 10px;
+        }
+        .modal-content p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .modal-content input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .modal-actions button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-guardar {
+            background: #2d7d46;
+            color: white;
+        }
+        .btn-guardar:hover {
+            background: #1e5a32;
+        }
+        .btn-cancelar {
+            background: #666;
+            color: white;
+        }
+        .btn-cancelar:hover {
+            background: #444;
+        }
+        .btn-editar-cerdos {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #2d7d46;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-editar-cerdos:hover {
+            background: #1e5a32;
+        }
+        .card {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- MENÚ DE NAVEGACIÓN -->
+        <nav>
+            <h1>🐖 PORCINOS</h1>
+            <ul>
+                <li><a href="index.html" class="active">Dashboard</a></li>
+                <li><a href="ventas.html">Ventas</a></li>
+                <li><a href="gastos.html">Gastos</a></li>
+            </ul>
+        </nav>
+
+        <!-- DASHBOARD - 4 TARJETAS -->
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3>💰 Total Ingresos</h3>
+                <p class="numero verde" id="total-ingresos">$0</p>
+                <p class="sub">Suma de todas las ventas</p>
+            </div>
+            <div class="card">
+                <h3>💳 Deudas Pendientes</h3>
+                <p class="numero deuda-rojo" id="total-deudas">$0</p>
+                <p class="sub">Clientes que deben</p>
+            </div>
+            <div class="card">
+                <h3>📉 Total Gastos</h3>
+                <p class="numero deuda-rojo" id="total-gastos">$0</p>
+                <p class="sub">Purina, compras y retiros</p>
+            </div>
+            <div class="card">
+                <h3>🐷 Cerdos Activos</h3>
+                <p class="numero verde" id="total-cerdos">0</p>
+                <p class="sub">Cerdos en inventario</p>
+                <button class="btn-editar-cerdos" id="btn-editar-cerdos">✏️</button>
+            </div>
+        </div>
+
+        <!-- BOTONES DE ACCIÓN -->
+        <div class="acciones">
+            <a href="nueva-venta.html" class="btn btn-accion">➕ Nueva Venta</a>
+            <a href="nuevo-gasto.html" class="btn btn-accion btn-gasto">➕ Nuevo Gasto</a>
+        </div>
+
+        <!-- TABLA DE VENTAS RECIENTES -->
+        <div class="seccion-titulo">
+            <h2>📋 Últimas Ventas</h2>
+            <a href="ventas.html">Ver todas →</a>
+        </div>
+        <div id="ventas-recientes">
+            <div class="loading">⏳ Cargando ventas...</div>
+        </div>
+
+        <!-- TABLA DE GASTOS RECIENTES -->
+        <div class="seccion-titulo">
+            <h2>📉 Últimos Gastos</h2>
+            <a href="gastos.html">Ver todos →</a>
+        </div>
+        <div id="gastos-recientes">
+            <div class="loading">⏳ Cargando gastos...</div>
+        </div>
+
+        <!-- PIE DE PÁGINA -->
+        <footer>
+            <p>🐖 Sistema de Gestión Porcina v1.0 | Desarrollado con ❤️</p>
+        </footer>
+    </div>
+
+    <!-- MODAL PARA EDITAR CERDOS -->
+    <div class="modal-overlay" id="modal-cerdos">
+        <div class="modal-content">
+            <h2>🐷 Editar Cerdos</h2>
+            <p>Actualiza el número de cerdos en inventario</p>
+            
+            <input type="number" id="input-cerdos" min="0" step="1" placeholder="Número de cerdos">
+            
+            <div class="modal-actions">
+                <button class="btn-guardar" id="btn-guardar-cerdos">✅ Guardar</button>
+                <button class="btn-cancelar" id="btn-cerrar-modal">❌ Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module">
+        import { supabaseClient } from './js/config.js';
+
+        console.log("📄 Dashboard cargado");
+
+        // ============================================
+        // 1. CARGAR DATOS DEL DASHBOARD
+        // ============================================
+        async function cargarDashboard() {
+            try {
+                // Cargar ingresos
+                const { data: ingresos, error: errorIngresos } = await supabaseClient
+                    .from('ingresos')
+                    .select('*');
+
+                if (errorIngresos) throw errorIngresos;
+
+                // Cargar gastos
+                const { data: gastos, error: errorGastos } = await supabaseClient
+                    .from('gastos')
+                    .select('*');
+
+                if (errorGastos) throw errorGastos;
+
+                // Calcular totales
+                const totalIngresos = ingresos.reduce((sum, v) => sum + v.valor, 0);
+                const totalDeudas = ingresos.reduce((sum, v) => sum + v.pago_pendiente, 0);
+                const totalGastos = gastos.reduce((sum, v) => sum + v.monto, 0);
+
+                // Actualizar tarjetas
+                document.getElementById('total-ingresos').textContent = `$${totalIngresos.toLocaleString()}`;
+                document.getElementById('total-deudas').textContent = `$${totalDeudas.toLocaleString()}`;
+                document.getElementById('total-gastos').textContent = `$${totalGastos.toLocaleString()}`;
+
+                // Mostrar últimas ventas y gastos
+                mostrarUltimasVentas(ingresos.slice(0, 5));
+                mostrarUltimosGastos(gastos.slice(0, 5));
+
+                // Cargar cerdos
+                await cargarCerdos();
+
+                console.log("✅ Dashboard actualizado");
+
+            } catch (error) {
+                console.error("❌ Error al cargar dashboard:", error);
+            }
+        }
+
+        // ============================================
+        // 2. MOSTRAR ÚLTIMAS VENTAS
+        // ============================================
+        function mostrarUltimasVentas(ventas) {
+            const container = document.getElementById('ventas-recientes');
+
+            if (ventas.length === 0) {
+                container.innerHTML = `<div class="mensaje-vacio">📭 No hay ventas registradas</div>`;
+                return;
+            }
+
+            let html = `
+                <table class="tabla">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Producto</th>
+                            <th>Total</th>
+                            <th>Deuda</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            ventas.forEach(venta => {
+                const estado = venta.pago_pendiente === 0 ? 'completado' : 'pendiente';
+                const badgeClass = estado === 'completado' ? 'badge-completado' : 'badge-pendiente';
+                const badgeText = estado === 'completado' ? '✅ Completado' : '⏳ Pendiente';
+
+                html += `
+                    <tr>
+                        <td>${venta.nombre}</td>
+                        <td>${venta.producto}</td>
+                        <td>$${venta.valor.toLocaleString()}</td>
+                        <td class="${estado === 'completado' ? 'estado-completado' : 'estado-pendiente'}">
+                            $${venta.pago_pendiente.toLocaleString()}
+                        </td>
+                        <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+                    </tr>
+                `;
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        // ============================================
+        // 3. MOSTRAR ÚLTIMOS GASTOS
+        // ============================================
+        function mostrarUltimosGastos(gastos) {
+            const container = document.getElementById('gastos-recientes');
+
+            if (gastos.length === 0) {
+                container.innerHTML = `<div class="mensaje-vacio">📭 No hay gastos registrados</div>`;
+                return;
+            }
+
+            let html = `
+                <table class="tabla">
+                    <thead>
+                        <tr>
+                            <th>Categoría</th>
+                            <th>Concepto</th>
+                            <th>Monto</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            const categoriaMap = {
+                'purina': '🌾 Purina',
+                'compra_cerdos': '🐷 Compra cerdos',
+                'retiro_dinero': '💰 Retiro',
+                'veterinario': '💉 Veterinario',
+                'transporte': '🚚 Transporte',
+                'otros': '📦 Otros'
+            };
+
+            gastos.forEach(gasto => {
+                html += `
+                    <tr>
+                        <td>${categoriaMap[gasto.tipo_gasto] || gasto.tipo_gasto}</td>
+                        <td>${gasto.concepto}</td>
+                        <td>$${gasto.monto.toLocaleString()}</td>
+                        <td>${gasto.fecha}</td>
+                    </tr>
+                `;
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        // ============================================
+        // 4. GESTIÓN DE CERDOS (SUPABASE)
+        // ============================================
+        async function cargarCerdos() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('configuracion')
+                    .select('valor')
+                    .eq('clave', 'total_cerdos')
+                    .single();
+
+                if (error) {
+                    console.error("❌ Error al cargar cerdos:", error);
+                    // Si no existe, crearlo
+                    await crearConfiguracionInicial();
+                    return;
+                }
+
+                if (data) {
+                    document.getElementById('total-cerdos').textContent = data.valor;
+                    console.log(`🐷 Cerdos cargados: ${data.valor}`);
+                } else {
+                    await crearConfiguracionInicial();
+                }
+
+            } catch (error) {
+                console.error("❌ Error:", error);
+                // Valor por defecto
+                document.getElementById('total-cerdos').textContent = '12';
+            }
+        }
+
+        async function crearConfiguracionInicial() {
+            try {
+                const { error } = await supabaseClient
+                    .from('configuracion')
+                    .insert([
+                        { clave: 'total_cerdos', valor: '12' }
+                    ]);
+
+                if (error) throw error;
+
+                document.getElementById('total-cerdos').textContent = '12';
+                console.log("🐷 Configuración inicial creada: 12 cerdos");
+
+            } catch (error) {
+                console.error("❌ Error al crear configuración:", error);
+                document.getElementById('total-cerdos').textContent = '12';
+            }
+        }
+
+        async function actualizarCerdos(cantidad) {
+            try {
+                const { error } = await supabaseClient
+                    .from('configuracion')
+                    .update({ valor: cantidad.toString() })
+                    .eq('clave', 'total_cerdos');
+
+                if (error) throw error;
+
+                document.getElementById('total-cerdos').textContent = cantidad;
+                console.log(`🐷 Cerdos actualizados: ${cantidad}`);
+
+            } catch (error) {
+                console.error("❌ Error al actualizar cerdos:", error);
+                alert("❌ Error al guardar en la base de datos");
+                throw error;
+            }
+        }
+
+        // ============================================
+        // 5. MODAL DE EDICIÓN
+        // ============================================
+        const modalCerdos = document.getElementById('modal-cerdos');
+        const inputCerdos = document.getElementById('input-cerdos');
+
+        document.getElementById('btn-editar-cerdos').addEventListener('click', function() {
+            const cerdosActuales = document.getElementById('total-cerdos').textContent;
+            inputCerdos.value = cerdosActuales;
+            modalCerdos.classList.add('active');
+        });
+
+        document.getElementById('btn-cerrar-modal').addEventListener('click', function() {
+            modalCerdos.classList.remove('active');
+        });
+
+        modalCerdos.addEventListener('click', function(event) {
+            if (event.target === modalCerdos) {
+                modalCerdos.classList.remove('active');
+            }
+        });
+
+        document.getElementById('btn-guardar-cerdos').addEventListener('click', async function() {
+            const cantidad = parseInt(inputCerdos.value);
+            
+            if (isNaN(cantidad) || cantidad < 0) {
+                alert('❌ Por favor, ingresa un número válido mayor o igual a 0');
+                return;
+            }
+
+            try {
+                await actualizarCerdos(cantidad);
+                modalCerdos.classList.remove('active');
+                alert(`✅ Cerdos actualizados a ${cantidad}`);
+            } catch (error) {
+                // El error ya se maneja en actualizarCerdos
+            }
+        });
+
+        // ============================================
+        // 6. EJECUTAR AL CARGAR
+        // ============================================
+        window.onload = function() {
+            cargarDashboard();
+        };
+    </script>
+</body>
+</html>

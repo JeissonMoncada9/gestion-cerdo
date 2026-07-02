@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐖 Nuevo Gasto</title>
+    <link rel="stylesheet" href="css/estilo.css">
+    <style>
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #d4a373;
+            box-shadow: 0 0 0 3px rgba(212, 163, 115, 0.2);
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            font-size: 18px;
+            font-weight: 600;
+            background: #d4a373;
+        }
+        .btn-submit:hover {
+            background: #b8895c;
+        }
+        .btn-volver {
+            display: inline-block;
+            margin-top: 15px;
+            background: #666;
+        }
+        .btn-volver:hover {
+            background: #444;
+        }
+        .mensaje-exito {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .mensaje-error {
+            background: #ffebee;
+            color: #d32f2f;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .mostrar {
+            display: block !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <h1>🐖 PORCINOS</h1>
+            <ul>
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="ventas.html">Ventas</a></li>
+                <li><a href="gastos.html" class="active">Gastos</a></li>
+            </ul>
+        </nav>
+
+        <div class="form-container">
+            <h2>📝 Nuevo Gasto</h2>
+            <p style="color: #666; margin-bottom: 20px;">Registra un gasto operativo</p>
+
+            <div id="mensaje-exito" class="mensaje-exito">✅ Gasto registrado exitosamente</div>
+            <div id="mensaje-error" class="mensaje-error">❌ Error al registrar el gasto</div>
+
+            <form id="form-nuevo-gasto">
+                <div class="form-group">
+                    <label for="tipo-gasto">Categoría *</label>
+                    <select id="tipo-gasto" required>
+                        <option value="purina">🌾 Purina</option>
+                        <option value="compra_cerdos">🐷 Compra de cerdos</option>
+                        <option value="retiro_dinero">💰 Retiro de dinero</option>
+                        <option value="veterinario">💉 Veterinario</option>
+                        <option value="transporte">🚚 Transporte</option>
+                        <option value="otros">📦 Otros</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="concepto">Concepto *</label>
+                    <input type="text" id="concepto" placeholder="Ej: Bolsa de purina 40kg" required>
+                </div>
+
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label for="monto">Monto ($) *</label>
+                        <input type="number" id="monto" placeholder="120000" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha">Fecha *</label>
+                        <input type="date" id="fecha" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-submit">✅ Registrar Gasto</button>
+            </form>
+
+            <a href="gastos.html" class="btn btn-volver">⬅ Volver a Gastos</a>
+        </div>
+
+        <footer>
+            <p>🐖 Sistema de Gestión Porcina v1.0</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module">
+        import { supabaseClient } from './js/config.js';
+
+        console.log("📄 Formulario de nuevo gasto cargado");
+
+        const form = document.getElementById('form-nuevo-gasto');
+        const mensajeExito = document.getElementById('mensaje-exito');
+        const mensajeError = document.getElementById('mensaje-error');
+
+        // Fecha por defecto: hoy
+        document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
+
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            mensajeExito.classList.remove('mostrar');
+            mensajeError.classList.remove('mostrar');
+
+            const tipoGasto = document.getElementById('tipo-gasto').value;
+            const concepto = document.getElementById('concepto').value.trim();
+            const monto = parseFloat(document.getElementById('monto').value);
+            const fecha = document.getElementById('fecha').value;
+
+            if (!concepto || !monto || monto <= 0 || !fecha) {
+                mensajeError.textContent = '❌ Por favor, completa todos los campos obligatorios';
+                mensajeError.classList.add('mostrar');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('gastos')
+                    .insert([
+                        {
+                            tipo_gasto: tipoGasto,
+                            concepto: concepto,
+                            monto: monto,
+                            fecha: fecha
+                        }
+                    ]);
+
+                if (error) {
+                    console.error('❌ Error:', error);
+                    mensajeError.textContent = `❌ Error al registrar: ${error.message}`;
+                    mensajeError.classList.add('mostrar');
+                    return;
+                }
+
+                mensajeExito.textContent = `✅ Gasto "${concepto}" registrado exitosamente`;
+                mensajeExito.classList.add('mostrar');
+
+                form.reset();
+                document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
+
+                setTimeout(() => {
+                    window.location.href = 'gastos.html';
+                }, 2000);
+
+            } catch (error) {
+                console.error('❌ Error:', error);
+                mensajeError.textContent = `❌ Error inesperado: ${error.message}`;
+                mensajeError.classList.add('mostrar');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,484 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    background: #f5f0e8;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ============================================
+   MENÚ DE NAVEGACIÓN
+   ============================================ */
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 15px 30px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+nav h1 {
+    color: #2d7d46;
+    font-size: 24px;
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+}
+
+nav ul li a {
+    color: #333;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: background 0.3s;
+}
+
+nav ul li a:hover {
+    background: #2d7d46;
+    color: white;
+}
+
+nav ul li a.active {
+    background: #2d7d46;
+    color: white;
+}
+
+/* ============================================
+   TARJETAS DEL DASHBOARD
+   ============================================ */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin: 20px 0 30px 0;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.card h3 {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.card .numero {
+    font-size: 32px;
+    font-weight: bold;
+    color: #2d7d46;
+}
+
+.card .sub {
+    font-size: 12px;
+    color: #999;
+    margin-top: 5px;
+}
+
+.verde {
+    color: #2e7d32;
+}
+
+.deuda-rojo {
+    color: #d32f2f;
+}
+
+/* ============================================
+   BOTONES
+   ============================================ */
+.btn {
+    background: #2d7d46;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn:hover {
+    background: #1e5a32;
+}
+
+.btn-accion {
+    display: inline-block;
+    margin: 10px 10px 20px 0;
+}
+
+.btn-gasto {
+    background: #d4a373;
+}
+
+.btn-gasto:hover {
+    background: #b8895c;
+}
+
+.acciones {
+    margin: 20px 0 25px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* ============================================
+   TABLAS
+   ============================================ */
+.tabla {
+    width: 100%;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin: 15px 0 30px 0;
+}
+
+.tabla thead {
+    background: #2d7d46;
+    color: white;
+}
+
+.tabla th {
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+}
+
+.tabla td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.tabla tbody tr:hover {
+    background: #f8f8f8;
+}
+
+.tabla tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ============================================
+   ESTADOS
+   ============================================ */
+.estado-pendiente {
+    color: #d32f2f;
+    font-weight: bold;
+}
+
+.estado-completado {
+    color: #2e7d32;
+    font-weight: bold;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.badge-pendiente {
+    background: #ffebee;
+    color: #d32f2f;
+}
+
+.badge-completado {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+/* ============================================
+   SECCIONES
+   ============================================ */
+.seccion-titulo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 35px 0 15px 0;
+}
+
+.seccion-titulo h2 {
+    font-size: 20px;
+    color: #333;
+}
+
+.seccion-titulo a {
+    font-size: 14px;
+    color: #2d7d46;
+    text-decoration: none;
+}
+
+.seccion-titulo a:hover {
+    text-decoration: underline;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    background: white;
+    border-radius: 12px;
+}
+
+.mensaje-vacio {
+    text-align: center;
+    padding: 30px;
+    background: white;
+    border-radius: 12px;
+    color: #666;
+}
+
+/* ============================================
+   DETALLE DE VENTA
+   ============================================ */
+.detalle-card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+}
+
+.detalle-card p {
+    margin: 10px 0;
+    font-size: 16px;
+}
+
+.detalle-card strong {
+    color: #333;
+    display: inline-block;
+    width: 150px;
+}
+
+.form-abono {
+    background: #f8f4f0;
+    padding: 25px;
+    border-radius: 12px;
+    margin: 20px 0;
+}
+
+.form-abono label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+.form-abono input,
+.form-abono select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+.form-abono button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+}
+
+.btn-volver {
+    display: inline-block;
+    margin-top: 20px;
+    background: #666;
+}
+
+.btn-volver:hover {
+    background: #444;
+}
+
+.estado-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+}
+
+.estado-pendiente-badge {
+    background: #ffebee;
+    color: #d32f2f;
+}
+
+.estado-completado-badge {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.historial-vacio {
+    text-align: center;
+    color: #666;
+    padding: 20px;
+}
+
+/* ============================================
+   FILTROS
+   ============================================ */
+.filtros {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.filtros input,
+.filtros select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    flex: 1;
+    min-width: 150px;
+}
+
+.filtros button {
+    padding: 10px 20px;
+    background: #2d7d46;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.filtros button:hover {
+    background: #1e5a32;
+}
+
+.btn-limpiar {
+    background: #666 !important;
+}
+
+.btn-limpiar:hover {
+    background: #444 !important;
+}
+
+.total-ventas {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+    text-align: right;
+    font-size: 18px;
+}
+
+.total-ventas span {
+    font-weight: bold;
+    color: #2d7d46;
+    font-size: 24px;
+}
+
+.btn-eliminar {
+    padding: 5px 12px;
+    font-size: 12px;
+    background: #d32f2f;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn-eliminar:hover {
+    background: #b71c1c;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+footer {
+    text-align: center;
+    margin-top: 40px;
+    color: #666;
+    font-size: 14px;
+    padding: 20px 0;
+    border-top: 1px solid #e8e0d8;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    nav {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    nav ul {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .detalle-card strong {
+        width: 100%;
+        display: block;
+    }
+
+    .tabla {
+        font-size: 13px;
+        overflow-x: auto;
+        display: block;
+    }
+
+    .tabla th,
+    .tabla td {
+        padding: 10px 12px;
+        white-space: nowrap;
+    }
+
+    .filtros {
+        flex-direction: column;
+    }
+
+    .filtros input,
+    .filtros select,
+    .filtros button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .card .numero {
+        font-size: 24px;
+    }
+
+    .acciones {
+        flex-direction: column;
+    }
+
+    .acciones .btn {
+        width: 100%;
+        text-align: center;
+    }
+}

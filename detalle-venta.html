@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐖 Detalle de Venta</title>
+    <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <h1>🐖 PORCINOS</h1>
+            <ul>
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="ventas.html" class="active">Ventas</a></li>
+                <li><a href="gastos.html">Gastos</a></li>
+            </ul>
+        </nav>
+
+        <h2>🧾 Detalle de Venta</h2>
+        <div class="detalle-card" id="detalle-venta">
+            <div class="loading">⏳ Cargando...</div>
+        </div>
+
+        <h3>📜 Historial de Pagos</h3>
+        <table class="tabla">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Monto</th>
+                    <th>Método</th>
+                </tr>
+            </thead>
+            <tbody id="historial-pagos">
+                <tr>
+                    <td colspan="3" class="historial-vacio">No hay pagos registrados</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>💰 Registrar Nuevo Abono</h3>
+        <div class="form-abono">
+            <form id="form-abono">
+                <div>
+                    <label for="monto-abono">Monto del abono ($):</label>
+                    <input type="number" id="monto-abono" placeholder="Ej: 100000" required min="1" step="0.01">
+                </div>
+                <div>
+                    <label for="metodo-abono">Método de pago:</label>
+                    <select id="metodo-abono">
+                        <option value="efectivo">Efectivo</option>
+                        <option value="transferencia">Transferencia</option>
+                        <option value="nequi">Nequi</option>
+                        <option value="daviplata">Daviplata</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">✅ Registrar Abono</button>
+            </form>
+        </div>
+
+        <a href="ventas.html" class="btn btn-volver">⬅ Volver a Ventas</a>
+
+        <footer>
+            <p>🐖 Sistema de Gestión Porcina v1.0</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module">
+        import { supabaseClient } from './js/config.js';
+
+        console.log("📄 Página de detalle cargada");
+
+        function obtenerIdDeURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+
+        const ventaId = obtenerIdDeURL();
+        console.log(`📌 ID de venta recibido: ${ventaId}`);
+
+        async function cargarDetalleVenta(id) {
+            if (!id) {
+                document.getElementById('detalle-venta').innerHTML = `
+                    <p style="color: #d32f2f; font-size: 18px;">❌ No se especificó qué venta ver</p>
+                    <p>Por favor, vuelve a la lista de ventas y selecciona una.</p>
+                `;
+                return;
+            }
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('ingresos')
+                    .select('*')
+                    .eq('id', id)
+                    .single();
+
+                if (error) throw error;
+
+                if (!data) {
+                    document.getElementById('detalle-venta').innerHTML = `
+                        <p style="color: #d32f2f; font-size: 18px;">❌ Venta no encontrada</p>
+                        <p>No existe una venta con ID: ${id}</p>
+                    `;
+                    return;
+                }
+
+                mostrarDetalleVenta(data);
+
+            } catch (error) {
+                console.error("❌ Error:", error);
+                document.getElementById('detalle-venta').innerHTML = `
+                    <p style="color: #d32f2f; font-size: 18px;">❌ Error inesperado</p>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+
+        function mostrarDetalleVenta(venta) {
+            const estado = venta.pago_pendiente === 0 ? 'completado' : 'pendiente';
+            const estadoBadge = estado === 'completado'
+                ? '<span class="estado-badge estado-completado-badge">✅ Completado</span>'
+                : '<span class="estado-badge estado-pendiente-badge">⏳ Pendiente</span>';
+
+            const detalleHTML = `
+                <p><strong>Cliente:</strong> ${venta.nombre}</p>
+                <p><strong>Producto:</strong> ${venta.producto}</p>
+                <p><strong>Valor total:</strong> $${venta.valor.toLocaleString()}</p>
+                <p><strong>Pagado:</strong> <span style="color: #2e7d32;">$${venta.pago_realizado.toLocaleString()}</span></p>
+                <p><strong>Pendiente:</strong> <span style="color: ${venta.pago_pendiente === 0 ? '#2e7d32' : '#d32f2f'}; font-weight: bold;">
+                    $${venta.pago_pendiente.toLocaleString()}
+                </span></p>
+                <p><strong>Estado:</strong> ${estadoBadge}</p>
+                <p><strong>Fecha de sacrificio:</strong> ${venta.fecha_sacrificio || 'No registrada'}</p>
+                <p><strong>Método de pago:</strong> ${venta.metodo_pago || 'No registrado'}</p>
+                <p><strong>Fecha de último pago:</strong> ${venta.fecha_pago || 'No registrada'}</p>
+                <p><strong>Registrado:</strong> ${new Date(venta.creado_en).toLocaleString()}</p>
+            `;
+
+            document.getElementById('detalle-venta').innerHTML = detalleHTML;
+
+            const historialBody = document.getElementById('historial-pagos');
+            if (venta.pago_realizado > 0) {
+                historialBody.innerHTML = `
+                    <tr>
+                        <td>${venta.fecha_pago || 'Fecha no registrada'}</td>
+                        <td>$${venta.pago_realizado.toLocaleString()}</td>
+                        <td>${venta.metodo_pago || 'No registrado'}</td>
+                    </tr>
+                `;
+            } else {
+                historialBody.innerHTML = `
+                    <tr>
+                        <td colspan="3" class="historial-vacio">No hay pagos registrados</td>
+                    </tr>
+                `;
+            }
+
+            console.log(`✅ Mostrando datos de: ${venta.nombre}`);
+        }
+
+        async function registrarAbono(id, montoAbono, metodoPago) {
+            if (montoAbono <= 0) {
+                alert('❌ El monto debe ser mayor a cero');
+                return;
+            }
+
+            try {
+                const { data: venta, error: errorGet } = await supabaseClient
+                    .from('ingresos')
+                    .select('*')
+                    .eq('id', id)
+                    .single();
+
+                if (errorGet) throw errorGet;
+
+                if (venta.pago_pendiente === 0) {
+                    alert('✅ Esta venta ya está completamente pagada');
+                    return;
+                }
+
+                let montoFinal = montoAbono;
+                if (montoAbono > venta.pago_pendiente) {
+                    if (confirm(`⚠️ El abono ($${montoAbono.toLocaleString()}) supera la deuda ($${venta.pago_pendiente.toLocaleString()}).\n¿Deseas registrar el excedente como pago completo?`)) {
+                        montoFinal = venta.pago_pendiente;
+                    } else {
+                        return;
+                    }
+                }
+
+                const nuevoPagado = venta.pago_realizado + montoFinal;
+                const hoy = new Date().toISOString().split('T')[0];
+
+                const { error: errorUpdate } = await supabaseClient
+                    .from('ingresos')
+                    .update({
+                        pago_realizado: nuevoPagado,
+                        metodo_pago: metodoPago,
+                        fecha_pago: hoy
+                    })
+                    .eq('id', id);
+
+                if (errorUpdate) throw errorUpdate;
+
+                const nuevoPendiente = venta.valor - nuevoPagado;
+                const estado = nuevoPendiente === 0 ? 'COMPLETADO ✅' : 'PENDIENTE ⏳';
+
+                alert(
+                    `✅ Abono registrado exitosamente!\n\n` +
+                    `💰 Monto: $${montoFinal.toLocaleString()}\n` +
+                    `📌 Método: ${metodoPago}\n` +
+                    `📉 Nuevo pendiente: $${nuevoPendiente.toLocaleString()}\n` +
+                    `📊 Estado: ${estado}`
+                );
+
+                location.reload();
+
+            } catch (error) {
+                alert("❌ Error: " + error.message);
+            }
+        }
+
+        document.getElementById('form-abono').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const monto = parseFloat(document.getElementById('monto-abono').value);
+            const metodo = document.getElementById('metodo-abono').value;
+
+            if (isNaN(monto) || monto <= 0) {
+                alert('❌ Por favor, ingresa un monto válido');
+                return;
+            }
+
+            registrarAbono(ventaId, monto, metodo);
+            document.getElementById('monto-abono').value = '';
+        });
+
+        window.onload = function() {
+            cargarDetalleVenta(ventaId);
+        };
+    </script>
+</body>
+</html>
