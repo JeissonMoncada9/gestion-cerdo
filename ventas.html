@@ -150,6 +150,22 @@
         .btn-eliminar-venta:hover {
             background: #b71c1c;
         }
+        .btn-ver-venta {
+            background: #2d7d46;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s;
+            margin-right: 5px;
+        }
+        .btn-ver-venta:hover {
+            background: #1e5a32;
+        }
 
         /* ===== BADGES ===== */
         .badge {
@@ -440,6 +456,7 @@
                             <td><span class="badge ${badgeClass}">${badgeText}</span></td>
                             <td>${venta.metodo_pago || '-'}</td>
                             <td>
+                                <a href="detalle-venta.html?id=${venta.id}" class="btn-ver-venta">👁️ Ver</a>
                                 <button class="btn-eliminar-venta" data-id="${venta.id}" data-nombre="${venta.nombre}">
                                     🗑️
                                 </button>
