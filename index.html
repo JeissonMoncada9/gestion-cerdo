@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🐖 Sistema de Gestión Porcina</title>
+    <title>Sistema de Gestión Porcina</title>
     <link rel="stylesheet" href="css/estilo.css">
     <style>
         /* Estilos para el modal */
@@ -98,7 +98,7 @@
     <div class="container">
         <!-- MENÚ DE NAVEGACIÓN -->
         <nav>
-            <h1>🐖 PORCINOS</h1>
+            <h1>PORCINOS</h1>
             <ul>
                 <li><a href="index.html" class="active">Dashboard</a></li>
                 <li><a href="ventas.html">Ventas</a></li>
@@ -109,22 +109,22 @@
         <!-- DASHBOARD - 4 TARJETAS -->
         <div class="dashboard-grid">
             <div class="card">
-                <h3>💰 Total Ingresos</h3>
+                <h3>Total Ingresos</h3>
                 <p class="numero verde" id="total-ingresos">$0</p>
                 <p class="sub">Suma de todas las ventas</p>
             </div>
             <div class="card">
-                <h3>💳 Deudas Pendientes</h3>
+                <h3>Deudas Pendientes</h3>
                 <p class="numero deuda-rojo" id="total-deudas">$0</p>
                 <p class="sub">Clientes que deben</p>
             </div>
             <div class="card">
-                <h3>📉 Total Gastos</h3>
+                <h3>Total Gastos</h3>
                 <p class="numero deuda-rojo" id="total-gastos">$0</p>
                 <p class="sub">Purina, compras y retiros</p>
             </div>
             <div class="card">
-                <h3>🐷 Cerdos Activos</h3>
+                <h3>Cerdos Activos</h3>
                 <p class="numero verde" id="total-cerdos">0</p>
                 <p class="sub">Cerdos en inventario</p>
                 <button class="btn-editar-cerdos" id="btn-editar-cerdos">✏️</button>
@@ -133,22 +133,22 @@
 
         <!-- BOTONES DE ACCIÓN -->
         <div class="acciones">
-            <a href="nueva-venta.html" class="btn btn-accion">➕ Nueva Venta</a>
-            <a href="nuevo-gasto.html" class="btn btn-accion btn-gasto">➕ Nuevo Gasto</a>
+            <a href="nueva-venta.html" class="btn btn-accion">Nueva Venta</a>
+            <a href="nuevo-gasto.html" class="btn btn-accion btn-gasto">Nuevo Gasto</a>
         </div>
 
         <!-- TABLA DE VENTAS RECIENTES -->
         <div class="seccion-titulo">
-            <h2>📋 Últimas Ventas</h2>
+            <h2>Últimas Ventas</h2>
             <a href="ventas.html">Ver todas →</a>
         </div>
         <div id="ventas-recientes">
-            <div class="loading">⏳ Cargando ventas...</div>
+            <div class="loading">Cargando ventas...</div>
         </div>
 
         <!-- TABLA DE GASTOS RECIENTES -->
         <div class="seccion-titulo">
-            <h2>📉 Últimos Gastos</h2>
+            <h2>Últimos Gastos</h2>
             <a href="gastos.html">Ver todos →</a>
         </div>
         <div id="gastos-recientes">
@@ -157,14 +157,14 @@
 
         <!-- PIE DE PÁGINA -->
         <footer>
-            <p>🐖 Sistema de Gestión Porcina v1.0 | Desarrollado con ❤️</p>
+            <p>Sistema de Gestión Porcina v1.2 | Desarrollado con ❤️</p>
         </footer>
     </div>
 
     <!-- MODAL PARA EDITAR CERDOS -->
     <div class="modal-overlay" id="modal-cerdos">
         <div class="modal-content">
-            <h2>🐷 Editar Cerdos</h2>
+            <h2> Editar Cerdos</h2>
             <p>Actualiza el número de cerdos en inventario</p>
             
             <input type="number" id="input-cerdos" min="0" step="1" placeholder="Número de cerdos">
@@ -181,14 +181,14 @@
     <script type="module">
     import { supabaseClient } from './js/config.js';
 
-    console.log("📄 Dashboard cargado");
+    console.log("Dashboard cargado");
 
     // ============================================
     // 1. CARGAR DATOS DEL DASHBOARD
     // ============================================
     async function cargarDashboard() {
         try {
-            console.log("🔄 Cargando datos del dashboard...");
+            console.log(" Cargando datos del dashboard...");
 
             // Cargar ingresos
             const { data: ingresos, error: errorIngresos } = await supabaseClient
@@ -197,11 +197,11 @@
                 .order('creado_en', { ascending: false });
 
             if (errorIngresos) {
-                console.error("❌ Error al cargar ingresos:", errorIngresos);
+                console.error(" Error al cargar ingresos:", errorIngresos);
                 throw errorIngresos;
             }
 
-            console.log(`📊 Ingresos cargados: ${ingresos.length}`);
+            console.log(` Ingresos cargados: ${ingresos.length}`);
 
             // Cargar gastos
             const { data: gastos, error: errorGastos } = await supabaseClient
@@ -210,11 +210,11 @@
                 .order('creado_en', { ascending: false });
 
             if (errorGastos) {
-                console.error("❌ Error al cargar gastos:", errorGastos);
+                console.error(" Error al cargar gastos:", errorGastos);
                 throw errorGastos;
             }
 
-            console.log(`📊 Gastos cargados: ${gastos.length}`);
+            console.log(` Gastos cargados: ${gastos.length}`);
 
             // Calcular totales
             const totalIngresos = ingresos.reduce((sum, v) => sum + v.valor, 0);
@@ -228,25 +228,25 @@
 
             // Mostrar últimas ventas (5) - CORREGIDO
             const ultimasVentas = ingresos.slice(0, 5);
-            console.log(`🔄 Mostrando ${ultimasVentas.length} últimas ventas`);
+            console.log(` Mostrando ${ultimasVentas.length} últimas ventas`);
             mostrarUltimasVentas(ultimasVentas);
 
             // Mostrar últimos gastos (5)
             const ultimosGastos = gastos.slice(0, 5);
-            console.log(`🔄 Mostrando ${ultimosGastos.length} últimos gastos`);
+            console.log(` Mostrando ${ultimosGastos.length} últimos gastos`);
             mostrarUltimosGastos(ultimosGastos);
 
             // Cargar cerdos
             await cargarCerdos();
 
-            console.log("✅ Dashboard actualizado correctamente");
+            console.log(" Dashboard actualizado correctamente");
 
         } catch (error) {
-            console.error("❌ Error al cargar dashboard:", error);
+            console.error(" Error al cargar dashboard:", error);
             // Mostrar mensaje de error en la interfaz
             document.getElementById('ventas-recientes').innerHTML = `
                 <div class="mensaje-error" style="background: #ffebee; color: #d32f2f; padding: 15px; border-radius: 8px;">
-                    ❌ Error al cargar las ventas recientes: ${error.message}
+                    Error al cargar las ventas recientes: ${error.message}
                 </div>
             `;
         }
@@ -258,7 +258,7 @@
     function mostrarUltimasVentas(ventas) {
         const container = document.getElementById('ventas-recientes');
         
-        console.log(`📋 Mostrando ${ventas.length} ventas en el dashboard`);
+        console.log(` Mostrando ${ventas.length} ventas en el dashboard`);
 
         if (!ventas || ventas.length === 0) {
             container.innerHTML = `
@@ -286,7 +286,7 @@
         ventas.forEach(venta => {
             const estado = venta.pago_pendiente === 0 ? 'completado' : 'pendiente';
             const badgeClass = estado === 'completado' ? 'badge-completado' : 'badge-pendiente';
-            const badgeText = estado === 'completado' ? '✅ Completado' : '⏳ Pendiente';
+            const badgeText = estado === 'completado' ? ' Completado' : ' Pendiente';
             
             // Debug: Mostrar cada venta en consola
             console.log(`   - ${venta.nombre}: $${venta.valor.toLocaleString()}`);
@@ -310,7 +310,7 @@
         `;
 
         container.innerHTML = html;
-        console.log("✅ Tabla de últimas ventas actualizada");
+        console.log(" Tabla de últimas ventas actualizada");
     }
 
     // ============================================
@@ -343,11 +343,11 @@
 
         const categoriaMap = {
             'purina': '🌾 Purina',
-            'compra_cerdos': '🐷 Compra cerdos',
-            'retiro_dinero': '💰 Retiro',
-            'veterinario': '💉 Veterinario',
-            'transporte': '🚚 Transporte',
-            'otros': '📦 Otros'
+            'compra_cerdos': ' Compra cerdos',
+            'retiro_dinero': ' Retiro',
+            'veterinario': ' Veterinario',
+            'transporte': ' Transporte',
+            'otros': ' Otros'
         };
 
         gastos.forEach(gasto => {
@@ -381,20 +381,20 @@
                 .single();
 
             if (error) {
-                console.error("❌ Error al cargar cerdos:", error);
+                console.error(" Error al cargar cerdos:", error);
                 document.getElementById('total-cerdos').textContent = '12';
                 return;
             }
 
             if (data) {
                 document.getElementById('total-cerdos').textContent = data.valor;
-                console.log(`🐷 Cerdos cargados: ${data.valor}`);
+                console.log(` Cerdos cargados: ${data.valor}`);
             } else {
                 document.getElementById('total-cerdos').textContent = '12';
             }
 
         } catch (error) {
-            console.error("❌ Error:", error);
+            console.error(" Error:", error);
             document.getElementById('total-cerdos').textContent = '12';
         }
     }
@@ -412,8 +412,8 @@
             console.log(`🐷 Cerdos actualizados: ${cantidad}`);
 
         } catch (error) {
-            console.error("❌ Error al actualizar cerdos:", error);
-            alert("❌ Error al guardar en la base de datos");
+            console.error(" Error al actualizar cerdos:", error);
+            alert(" Error al guardar en la base de datos");
             throw error;
         }
     }
@@ -451,14 +451,14 @@
             const cantidad = parseInt(inputCerdos.value);
             
             if (isNaN(cantidad) || cantidad < 0) {
-                alert('❌ Por favor, ingresa un número válido mayor o igual a 0');
+                alert(' Por favor, ingresa un número válido mayor o igual a 0');
                 return;
             }
 
             try {
                 await actualizarCerdos(cantidad);
                 modalCerdos.classList.remove('active');
-                alert(`✅ Cerdos actualizados a ${cantidad}`);
+                alert(` Cerdos actualizados a ${cantidad}`);
             } catch (error) {
                 // El error ya se maneja en actualizarCerdos
             }
@@ -469,7 +469,7 @@
     // 6. EJECUTAR AL CARGAR LA PÁGINA
     // ============================================
     window.onload = function() {
-        console.log("🔄 Iniciando carga del dashboard...");
+        console.log(" Iniciando carga del dashboard...");
         cargarDashboard();
     };
 </script>

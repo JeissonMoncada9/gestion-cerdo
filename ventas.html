@@ -131,10 +131,27 @@
         .btn-limpiar:hover {
             background: #444 !important;
         }
+
+        /* ===== BOTONES ===== */
         .btn-accion {
             display: inline-block;
             margin: 10px 10px 20px 0;
         }
+        .btn-eliminar-venta {
+            background: #d32f2f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-eliminar-venta:hover {
+            background: #b71c1c;
+        }
+
+        /* ===== BADGES ===== */
         .badge {
             display: inline-block;
             padding: 4px 14px;
@@ -158,6 +175,8 @@
             color: #2e7d32;
             font-weight: bold;
         }
+
+        /* ===== MENSAJES ===== */
         .sin-ventas {
             text-align: center;
             padding: 40px;
@@ -166,6 +185,7 @@
             border-radius: 12px;
         }
 
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .grupo-fecha-header {
                 flex-direction: column;
@@ -180,6 +200,9 @@
             }
             .resumen-global .item .numero {
                 font-size: 20px;
+            }
+            .filtros input, .filtros select {
+                min-width: 100%;
             }
         }
     </style>
@@ -241,7 +264,7 @@
         </div>
 
         <footer>
-            <p>🐖 Sistema de Gestión Porcina v1.0 | Ventas protegidas - No se eliminan</p>
+            <p>🐖 Sistema de Gestión Porcina v1.0 | Ventas protegidas - Eliminación con doble confirmación</p>
         </footer>
     </div>
 
@@ -393,6 +416,7 @@
                                         <th>Deuda</th>
                                         <th>Estado</th>
                                         <th>Método</th>
+                                        <th>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -415,6 +439,11 @@
                             </td>
                             <td><span class="badge ${badgeClass}">${badgeText}</span></td>
                             <td>${venta.metodo_pago || '-'}</td>
+                            <td>
+                                <button class="btn-eliminar-venta" data-id="${venta.id}" data-nombre="${venta.nombre}">
+                                    🗑️
+                                </button>
+                            </td>
                         </tr>
                     `;
                 });
@@ -433,10 +462,62 @@
             }
             
             container.innerHTML = html;
+
+            // ============================================
+            // CONECTAR BOTONES DE ELIMINAR
+            // ============================================
+            document.querySelectorAll('.btn-eliminar-venta').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = this.dataset.id;
+                    const nombre = this.dataset.nombre;
+                    eliminarVenta(id, nombre);
+                });
+            });
+
+            actualizarResumenGlobal(ventas, gastos);
         }
 
         // ============================================
-        // 5. ACTUALIZAR RESUMEN GLOBAL
+        // 5. ELIMINAR VENTA (CON DOBLE CONFIRMACIÓN)
+        // ============================================
+        async function eliminarVenta(id, nombre) {
+            // Primera confirmación
+            const confirmar1 = confirm(`⚠️ ¿Estás seguro de eliminar la venta de "${nombre}"?`);
+            if (!confirmar1) return;
+            
+            // Segunda confirmación (escribir "ELIMINAR")
+            const confirmar2 = prompt(
+                `⚠️ CONFIRMACIÓN FINAL\n\n` +
+                `Venta: ${nombre}\n` +
+                `Esta acción NO se puede deshacer.\n\n` +
+                `Escribe "ELIMINAR" para confirmar:`
+            );
+            
+            if (confirmar2 !== "ELIMINAR") {
+                alert("❌ Eliminación cancelada");
+                return;
+            }
+
+            try {
+                const { error } = await supabaseClient
+                    .from('ingresos')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                alert(`✅ Venta de "${nombre}" eliminada correctamente`);
+                
+                // Recargar los datos
+                await cargarDatos();
+
+            } catch (error) {
+                alert("❌ Error al eliminar: " + error.message);
+            }
+        }
+
+        // ============================================
+        // 6. ACTUALIZAR RESUMEN GLOBAL
         // ============================================
         function actualizarResumenGlobal(ventas, gastos) {
             const totalVentas = ventas.reduce((sum, v) => sum + v.valor, 0);
@@ -454,7 +535,7 @@
         }
 
         // ============================================
-        // 6. FORMATO DE FECHA
+        // 7. FORMATO DE FECHA
         // ============================================
         function formatFecha(fechaStr) {
             if (!fechaStr || fechaStr === 'Sin fecha') return fechaStr;
@@ -470,7 +551,7 @@
         }
 
         // ============================================
-        // 7. FILTROS
+        // 8. FILTROS
         // ============================================
         document.getElementById('btn-filtrar').addEventListener('click', function() {
             const filtroCliente = document.getElementById('filtro-cliente').value.toLowerCase().trim();
@@ -509,7 +590,7 @@
         });
 
         // ============================================
-        // 8. EJECUTAR AL CARGAR
+        // 9. EJECUTAR AL CARGAR
         // ============================================
         window.onload = cargarDatos;
     </script>
