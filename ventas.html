@@ -6,6 +6,101 @@
     <title>🐖 Gestión de Ventas</title>
     <link rel="stylesheet" href="css/estilo.css">
     <style>
+        /* ===== ESTILOS PARA AGRUPACIÓN POR FECHA ===== */
+        .grupo-fecha {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        .grupo-fecha-header {
+            background: #2d7d46;
+            color: white;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .grupo-fecha-header:hover {
+            background: #1e5a32;
+        }
+        .grupo-fecha-header h3 {
+            font-size: 18px;
+            margin: 0;
+        }
+        .grupo-fecha-header .resumen-dia {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            flex-wrap: wrap;
+        }
+        .grupo-fecha-header .resumen-dia span {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+        .grupo-fecha-body {
+            padding: 0;
+            overflow-x: auto;
+        }
+        .grupo-fecha-body table {
+            margin: 0;
+            border-radius: 0;
+        }
+        .grupo-fecha-body table thead {
+            background: #e8f5e9;
+            color: #2d7d46;
+        }
+        .total-dia {
+            padding: 12px 20px;
+            background: #f8f5f0;
+            text-align: right;
+            font-weight: bold;
+            border-top: 2px solid #e8e0d8;
+        }
+        .total-dia .ganancia {
+            color: #2e7d32;
+        }
+        .total-dia .perdida {
+            color: #d32f2f;
+        }
+
+        /* ===== RESUMEN GLOBAL ===== */
+        .resumen-global {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin: 20px 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            text-align: center;
+        }
+        .resumen-global .item {
+            padding: 10px;
+        }
+        .resumen-global .item .numero {
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .resumen-global .item .label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .verde {
+            color: #2e7d32;
+        }
+        .rojo {
+            color: #d32f2f;
+        }
+
+        /* ===== FILTROS ===== */
         .filtros {
             display: flex;
             gap: 10px;
@@ -30,36 +125,15 @@
         .filtros button:hover {
             background: #1e5a32;
         }
-        .total-ventas {
-            background: white;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            margin: 20px 0;
-            text-align: right;
-            font-size: 18px;
+        .btn-limpiar {
+            background: #666 !important;
         }
-        .total-ventas span {
-            font-weight: bold;
-            color: #2d7d46;
-            font-size: 24px;
+        .btn-limpiar:hover {
+            background: #444 !important;
         }
         .btn-accion {
             display: inline-block;
             margin: 10px 10px 20px 0;
-        }
-        .btn-eliminar {
-            padding: 5px 12px;
-            font-size: 12px;
-            background: #d32f2f;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        .btn-eliminar:hover {
-            background: #b71c1c;
         }
         .badge {
             display: inline-block;
@@ -84,24 +158,35 @@
             color: #2e7d32;
             font-weight: bold;
         }
-        .btn-limpiar {
-            background: #666 !important;
-        }
-        .btn-limpiar:hover {
-            background: #444 !important;
-        }
-        .loading {
+        .sin-ventas {
             text-align: center;
             padding: 40px;
             color: #666;
             background: white;
             border-radius: 12px;
         }
+
+        @media (max-width: 768px) {
+            .grupo-fecha-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .grupo-fecha-header .resumen-dia {
+                font-size: 12px;
+            }
+            .resumen-global {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .resumen-global .item .numero {
+                font-size: 20px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- MENÚ DE NAVEGACIÓN -->
+        <!-- MENÚ -->
         <nav>
             <h1>🐖 PORCINOS</h1>
             <ul>
@@ -111,7 +196,7 @@
             </ul>
         </nav>
 
-        <!-- TÍTULO Y BOTÓN NUEVA VENTA -->
+        <!-- TÍTULO Y BOTÓN -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0;">
             <h2>📋 Registro de Ventas</h2>
             <a href="nueva-venta.html" class="btn btn-accion">➕ Nueva Venta</a>
@@ -120,6 +205,7 @@
         <!-- FILTROS -->
         <div class="filtros">
             <input type="text" id="filtro-cliente" placeholder="🔍 Buscar por cliente...">
+            <input type="date" id="filtro-fecha" placeholder="📅 Filtrar por fecha">
             <select id="filtro-estado">
                 <option value="todos">Todos los estados</option>
                 <option value="pendiente">⏳ Pendiente</option>
@@ -129,40 +215,33 @@
             <button id="btn-limpiar" class="btn-limpiar">🧹 Limpiar</button>
         </div>
 
-        <!-- TOTAL DE VENTAS -->
-        <div class="total-ventas">
-            💰 Total de ventas: <span id="total-ventas-valor">$0</span>
+        <!-- ===== RESUMEN GLOBAL ===== -->
+        <div class="resumen-global" id="resumen-global">
+            <div class="item">
+                <div class="numero verde" id="total-ventas-global">$0</div>
+                <div class="label">💰 Total Ventas</div>
+            </div>
+            <div class="item">
+                <div class="numero rojo" id="total-gastos-global">$0</div>
+                <div class="label">📉 Total Gastos</div>
+            </div>
+            <div class="item">
+                <div class="numero" id="total-ganancia-global">$0</div>
+                <div class="label">📈 Ganancia Neta</div>
+            </div>
+            <div class="item">
+                <div class="numero" id="total-ventas-count">0</div>
+                <div class="label">📊 Total Ventas</div>
+            </div>
         </div>
 
-        <!-- TABLA DE VENTAS -->
-        <div id="contenedor-tabla">
-            <table class="tabla" id="tabla-ventas">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Cliente</th>
-                        <th>Producto</th>
-                        <th>Total</th>
-                        <th>Pagado</th>
-                        <th>Deuda</th>
-                        <th>Estado</th>
-                        <th>Fecha</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="cuerpo-ventas">
-                    <!-- Se llena con JavaScript -->
-                </tbody>
-            </table>
-        </div>
-
-        <div id="sin-ventas" style="display: none; text-align: center; padding: 40px; background: white; border-radius: 12px;">
-            <p style="font-size: 20px;">📭 No hay ventas registradas</p>
-            <p style="color: #666;">Haz clic en "Nueva Venta" para comenzar</p>
+        <!-- CONTENEDOR DE VENTAS AGRUPADAS -->
+        <div id="contenedor-ventas">
+            <div class="sin-ventas">⏳ Cargando ventas...</div>
         </div>
 
         <footer>
-            <p>🐖 Sistema de Gestión Porcina v1.0 | Total de ventas: <span id="total-ventas-pie">0</span></p>
+            <p>🐖 Sistema de Gestión Porcina v1.0 | Ventas protegidas - No se eliminan</p>
         </footer>
     </div>
 
@@ -173,144 +252,266 @@
 
         console.log("📄 Página de ventas cargada");
 
-        // ============================================
-        // 1. CARGAR VENTAS DESDE SUPABASE
-        // ============================================
-        async function cargarVentas() {
-            try {
-                console.log("🔄 Cargando ventas desde Supabase...");
+        let todasLasVentas = [];
+        let todosLosGastos = [];
 
-                const { data, error } = await supabaseClient
+        // ============================================
+        // 1. CARGAR DATOS DESDE SUPABASE
+        // ============================================
+        async function cargarDatos() {
+            try {
+                console.log("🔄 Cargando datos...");
+
+                const { data: ventas, error: errorVentas } = await supabaseClient
                     .from('ingresos')
                     .select('*')
-                    .order('creado_en', { ascending: false });
+                    .order('fecha_sacrificio', { ascending: false });
 
-                if (error) {
-                    console.error("❌ Error:", error);
-                    alert("❌ Error al cargar las ventas: " + error.message);
-                    return;
-                }
+                if (errorVentas) throw errorVentas;
 
-                // Actualizar totales
-                const totalVentas = data.reduce((sum, v) => sum + v.valor, 0);
-                document.getElementById('total-ventas-valor').textContent = `$${totalVentas.toLocaleString()}`;
-                document.getElementById('total-ventas-pie').textContent = data.length;
+                const { data: gastos, error: errorGastos } = await supabaseClient
+                    .from('gastos')
+                    .select('*');
 
-                const tbody = document.getElementById('cuerpo-ventas');
-                tbody.innerHTML = '';
+                if (errorGastos) throw errorGastos;
 
-                // Mostrar mensaje si no hay datos
-                if (data.length === 0) {
-                    document.getElementById('sin-ventas').style.display = 'block';
-                    document.getElementById('contenedor-tabla').style.display = 'none';
-                    return;
-                }
+                todasLasVentas = ventas;
+                todosLosGastos = gastos;
 
-                document.getElementById('sin-ventas').style.display = 'none';
-                document.getElementById('contenedor-tabla').style.display = 'block';
-
-                // Crear filas
-                data.forEach((venta, index) => {
-                    const estado = venta.pago_pendiente === 0 ? 'completado' : 'pendiente';
-                    const badgeClass = estado === 'completado' ? 'badge-completado' : 'badge-pendiente';
-                    const badgeText = estado === 'completado' ? '✅ Completado' : '⏳ Pendiente';
-
-                    const fila = document.createElement('tr');
-                    fila.innerHTML = `
-                        <td>${index + 1}</td>
-                        <td>${venta.nombre}</td>
-                        <td>${venta.producto}</td>
-                        <td>$${venta.valor.toLocaleString()}</td>
-                        <td>$${venta.pago_realizado.toLocaleString()}</td>
-                        <td class="${estado === 'completado' ? 'estado-completado' : 'estado-pendiente'}">
-                            $${venta.pago_pendiente.toLocaleString()}
-                        </td>
-                        <td><span class="badge ${badgeClass}">${badgeText}</span></td>
-                        <td>${venta.fecha_sacrificio || '-'}</td>
-                        <td>
-                            <a href="detalle-venta.html?id=${venta.id}" class="btn" style="padding: 5px 12px; font-size: 12px;">Ver</a>
-                            <button class="btn-eliminar" data-id="${venta.id}" data-nombre="${venta.nombre}">🗑️</button>
-                        </td>
-                    `;
-                    tbody.appendChild(fila);
-                });
-
-                // Event listeners para eliminar
-                document.querySelectorAll('.btn-eliminar').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const id = this.dataset.id;
-                        const nombre = this.dataset.nombre;
-                        eliminarVenta(id, nombre);
-                    });
-                });
-
-                console.log(`✅ ${data.length} ventas cargadas`);
+                console.log(`✅ ${ventas.length} ventas y ${gastos.length} gastos cargados`);
+                
+                // Actualizar resumen global
+                actualizarResumenGlobal(ventas, gastos);
+                
+                // Mostrar ventas agrupadas
+                mostrarVentasAgrupadas(ventas, gastos);
 
             } catch (error) {
                 console.error("❌ Error:", error);
-                alert("❌ Error al cargar las ventas: " + error.message);
+                document.getElementById('contenedor-ventas').innerHTML = `
+                    <div class="sin-ventas" style="color: #d32f2f;">
+                        ❌ Error al cargar los datos: ${error.message}
+                    </div>
+                `;
             }
         }
 
         // ============================================
-        // 2. ELIMINAR VENTA
+        // 2. AGRUPAR VENTAS POR FECHA
         // ============================================
-        async function eliminarVenta(id, nombre) {
-            if (!confirm(`⚠️ ¿Estás seguro de eliminar la venta de "${nombre}"?`)) return;
+        function agruparVentasPorFecha(ventas) {
+            const grupos = {};
+            
+            ventas.forEach(venta => {
+                const fecha = venta.fecha_sacrificio || venta.creado_en?.split('T')[0] || 'Sin fecha';
+                if (!grupos[fecha]) {
+                    grupos[fecha] = [];
+                }
+                grupos[fecha].push(venta);
+            });
+            
+            const fechasOrdenadas = Object.keys(grupos).sort((a, b) => {
+                if (a === 'Sin fecha') return 1;
+                if (b === 'Sin fecha') return -1;
+                return new Date(b) - new Date(a);
+            });
+            
+            const resultado = {};
+            fechasOrdenadas.forEach(fecha => {
+                resultado[fecha] = grupos[fecha];
+            });
+            
+            return resultado;
+        }
 
+        // ============================================
+        // 3. CALCULAR GASTOS POR FECHA
+        // ============================================
+        function calcularGastosPorFecha(gastos) {
+            const gastosPorFecha = {};
+            gastos.forEach(gasto => {
+                const fecha = gasto.fecha;
+                if (!gastosPorFecha[fecha]) {
+                    gastosPorFecha[fecha] = 0;
+                }
+                gastosPorFecha[fecha] += gasto.monto;
+            });
+            return gastosPorFecha;
+        }
+
+        // ============================================
+        // 4. MOSTRAR VENTAS AGRUPADAS
+        // ============================================
+        function mostrarVentasAgrupadas(ventas, gastos) {
+            const container = document.getElementById('contenedor-ventas');
+            
+            if (!ventas || ventas.length === 0) {
+                container.innerHTML = `
+                    <div class="sin-ventas">
+                        📭 No hay ventas registradas
+                        <br><br>
+                        <a href="nueva-venta.html" class="btn">➕ Registrar primera venta</a>
+                    </div>
+                `;
+                return;
+            }
+
+            const ventasPorFecha = agruparVentasPorFecha(ventas);
+            const gastosPorFecha = calcularGastosPorFecha(gastos);
+            
+            let html = '';
+
+            for (const [fecha, ventasDelDia] of Object.entries(ventasPorFecha)) {
+                const totalVentasDia = ventasDelDia.reduce((sum, v) => sum + v.valor, 0);
+                const totalGastosDia = gastosPorFecha[fecha] || 0;
+                const gananciaDia = totalVentasDia - totalGastosDia;
+                
+                const fechaFormateada = fecha === 'Sin fecha' ? '📅 Sin fecha' : formatFecha(fecha);
+                const gananciaIcon = gananciaDia >= 0 ? '📈' : '📉';
+                const gananciaClass = gananciaDia >= 0 ? 'ganancia' : 'perdida';
+
+                html += `
+                    <div class="grupo-fecha">
+                        <div class="grupo-fecha-header">
+                            <h3>📅 ${fechaFormateada}</h3>
+                            <div class="resumen-dia">
+                                <span>💰 Ventas: $${totalVentasDia.toLocaleString()}</span>
+                                <span>📉 Gastos: $${totalGastosDia.toLocaleString()}</span>
+                                <span class="${gananciaClass}">${gananciaIcon} Ganancia: $${gananciaDia.toLocaleString()}</span>
+                                <span>📊 ${ventasDelDia.length} ventas</span>
+                            </div>
+                        </div>
+                        <div class="grupo-fecha-body">
+                            <table class="tabla">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Cliente</th>
+                                        <th>Producto</th>
+                                        <th>Total</th>
+                                        <th>Pagado</th>
+                                        <th>Deuda</th>
+                                        <th>Estado</th>
+                                        <th>Método</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                `;
+
+                ventasDelDia.forEach((venta, index) => {
+                    const estado = venta.pago_pendiente === 0 ? 'completado' : 'pendiente';
+                    const badgeClass = estado === 'completado' ? 'badge-completado' : 'badge-pendiente';
+                    const badgeText = estado === 'completado' ? '✅ Completado' : '⏳ Pendiente';
+                    
+                    html += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td><strong>${venta.nombre}</strong></td>
+                            <td>${venta.producto}</td>
+                            <td>$${venta.valor.toLocaleString()}</td>
+                            <td>$${venta.pago_realizado.toLocaleString()}</td>
+                            <td class="${estado === 'completado' ? 'estado-completado' : 'estado-pendiente'}">
+                                $${venta.pago_pendiente.toLocaleString()}
+                            </td>
+                            <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+                            <td>${venta.metodo_pago || '-'}</td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="total-dia">
+                            <span>💰 Total Ventas: $${totalVentasDia.toLocaleString()} | </span>
+                            <span>📉 Gastos: $${totalGastosDia.toLocaleString()} | </span>
+                            <span class="${gananciaClass}">${gananciaIcon} Ganancia del día: $${gananciaDia.toLocaleString()}</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+
+        // ============================================
+        // 5. ACTUALIZAR RESUMEN GLOBAL
+        // ============================================
+        function actualizarResumenGlobal(ventas, gastos) {
+            const totalVentas = ventas.reduce((sum, v) => sum + v.valor, 0);
+            const totalGastos = gastos.reduce((sum, g) => sum + g.monto, 0);
+            const gananciaNeta = totalVentas - totalGastos;
+            
+            document.getElementById('total-ventas-global').textContent = `$${totalVentas.toLocaleString()}`;
+            document.getElementById('total-gastos-global').textContent = `$${totalGastos.toLocaleString()}`;
+            
+            const gananciaEl = document.getElementById('total-ganancia-global');
+            gananciaEl.textContent = `$${gananciaNeta.toLocaleString()}`;
+            gananciaEl.style.color = gananciaNeta >= 0 ? '#2e7d32' : '#d32f2f';
+            
+            document.getElementById('total-ventas-count').textContent = ventas.length;
+        }
+
+        // ============================================
+        // 6. FORMATO DE FECHA
+        // ============================================
+        function formatFecha(fechaStr) {
+            if (!fechaStr || fechaStr === 'Sin fecha') return fechaStr;
             try {
-                const { error } = await supabaseClient
-                    .from('ingresos')
-                    .delete()
-                    .eq('id', id);
-
-                if (error) throw error;
-
-                alert(`✅ Venta de "${nombre}" eliminada correctamente`);
-                cargarVentas(); // Recargar
-
-            } catch (error) {
-                alert("❌ Error al eliminar: " + error.message);
+                const fecha = new Date(fechaStr + 'T00:00:00');
+                if (isNaN(fecha.getTime())) return fechaStr;
+                const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+                const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                return `${dias[fecha.getDay()]}, ${fecha.getDate()} de ${meses[fecha.getMonth()]} de ${fecha.getFullYear()}`;
+            } catch (e) {
+                return fechaStr;
             }
         }
 
         // ============================================
-        // 3. FILTROS
+        // 7. FILTROS
         // ============================================
         document.getElementById('btn-filtrar').addEventListener('click', function() {
             const filtroCliente = document.getElementById('filtro-cliente').value.toLowerCase().trim();
+            const filtroFecha = document.getElementById('filtro-fecha').value;
             const filtroEstado = document.getElementById('filtro-estado').value;
-
-            const filas = document.querySelectorAll('#cuerpo-ventas tr');
-            let contador = 0;
-
-            filas.forEach(fila => {
-                const cliente = fila.querySelector('td:nth-child(2)')?.textContent?.toLowerCase() || '';
-                const estado = fila.querySelector('td:nth-child(7)')?.textContent?.includes('Completado') ? 'completado' : 'pendiente';
-
-                let mostrar = true;
-                if (filtroCliente && !cliente.includes(filtroCliente)) mostrar = false;
-                if (filtroEstado !== 'todos' && estado !== filtroEstado) mostrar = false;
-
-                fila.style.display = mostrar ? '' : 'none';
-                if (mostrar) contador++;
-            });
-
-            document.getElementById('total-ventas-pie').textContent = contador;
+            
+            let ventasFiltradas = todasLasVentas;
+            
+            if (filtroCliente) {
+                ventasFiltradas = ventasFiltradas.filter(v => 
+                    v.nombre.toLowerCase().includes(filtroCliente)
+                );
+            }
+            if (filtroFecha) {
+                ventasFiltradas = ventasFiltradas.filter(v => 
+                    v.fecha_sacrificio === filtroFecha
+                );
+            }
+            if (filtroEstado !== 'todos') {
+                ventasFiltradas = ventasFiltradas.filter(v => {
+                    const estado = v.pago_pendiente === 0 ? 'completado' : 'pendiente';
+                    return estado === filtroEstado;
+                });
+            }
+            
+            mostrarVentasAgrupadas(ventasFiltradas, todosLosGastos);
+            actualizarResumenGlobal(ventasFiltradas, todosLosGastos);
         });
 
         document.getElementById('btn-limpiar').addEventListener('click', function() {
             document.getElementById('filtro-cliente').value = '';
+            document.getElementById('filtro-fecha').value = '';
             document.getElementById('filtro-estado').value = 'todos';
-            document.querySelectorAll('#cuerpo-ventas tr').forEach(fila => fila.style.display = '');
-            const total = document.querySelectorAll('#cuerpo-ventas tr').length;
-            document.getElementById('total-ventas-pie').textContent = total;
+            mostrarVentasAgrupadas(todasLasVentas, todosLosGastos);
+            actualizarResumenGlobal(todasLasVentas, todosLosGastos);
         });
 
         // ============================================
-        // 4. EJECUTAR AL CARGAR
+        // 8. EJECUTAR AL CARGAR
         // ============================================
-        window.onload = cargarVentas;
+        window.onload = cargarDatos;
     </script>
 </body>
 </html>
