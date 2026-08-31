@@ -482,3 +482,587 @@ footer {
         text-align: center;
     }
 }
+
+
+/* ===== VENTAS.HTML ===== */
+/* ===== ESTILOS PARA AGRUPACIÓN POR FECHA ===== */
+        .grupo-fecha {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        .grupo-fecha-header {
+            background: #2d7d46;
+            color: white;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .grupo-fecha-header:hover {
+            background: #1e5a32;
+        }
+        .grupo-fecha-header h3 {
+            font-size: 18px;
+            margin: 0;
+        }
+        .grupo-fecha-header .resumen-dia {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            flex-wrap: wrap;
+        }
+        .grupo-fecha-header .resumen-dia span {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+        .grupo-fecha-body {
+            padding: 0;
+            overflow-x: auto;
+        }
+        .grupo-fecha-body table {
+            margin: 0;
+            border-radius: 0;
+        }
+        .grupo-fecha-body table thead {
+            background: #e8f5e9;
+            color: #2d7d46;
+        }
+        .total-dia {
+            padding: 12px 20px;
+            background: #f8f5f0;
+            text-align: right;
+            font-weight: bold;
+            border-top: 2px solid #e8e0d8;
+        }
+        .total-dia .ganancia {
+            color: #2e7d32;
+        }
+        .total-dia .perdida {
+            color: #d32f2f;
+        }
+
+        /* ===== RESUMEN GLOBAL ===== */
+        .resumen-global {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin: 20px 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            text-align: center;
+        }
+        .resumen-global .item {
+            padding: 10px;
+        }
+        .resumen-global .item .numero {
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .resumen-global .item .label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .verde {
+            color: #2e7d32;
+        }
+        .rojo {
+            color: #d32f2f;
+        }
+
+        /* ===== FILTROS ===== */
+        .filtros {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .filtros input, .filtros select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            flex: 1;
+            min-width: 150px;
+        }
+        .filtros button {
+            padding: 10px 20px;
+            background: #2d7d46;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .filtros button:hover {
+            background: #1e5a32;
+        }
+        .btn-limpiar {
+            background: #666 !important;
+        }
+        .btn-limpiar:hover {
+            background: #444 !important;
+        }
+
+        /* ===== BOTONES ===== */
+        .btn-accion {
+            display: inline-block;
+            margin: 10px 10px 20px 0;
+        }
+        .btn-eliminar-venta {
+            background: #d32f2f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-eliminar-venta:hover {
+            background: #b71c1c;
+        }
+        .btn-ver-venta {
+            background: #2d7d46;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s;
+            margin-right: 5px;
+        }
+        .btn-ver-venta:hover {
+            background: #1e5a32;
+        }
+
+        /* ===== BADGES ===== */
+        .badge {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .badge-pendiente {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+        .badge-completado {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .estado-pendiente {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+        .estado-completado {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        /* ===== MENSAJES ===== */
+        .sin-ventas {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            background: white;
+            border-radius: 12px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .grupo-fecha-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .grupo-fecha-header .resumen-dia {
+                font-size: 12px;
+            }
+            .resumen-global {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .resumen-global .item .numero {
+                font-size: 20px;
+            }
+            .filtros input, .filtros select {
+                min-width: 100%;
+            }
+        }
+
+/* ===== DETALLE.VENTA.HTML ===== */
+        .detalle-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        .detalle-card p {
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        .detalle-card strong {
+            color: #333;
+            display: inline-block;
+            width: 150px;
+        }
+        .form-abono {
+            background: #f8f4f0;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        .form-abono label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        .form-abono input, .form-abono select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        .form-abono button {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+        }
+        .btn-volver {
+            display: inline-block;
+            margin-top: 20px;
+            background: #666;
+        }
+        .btn-volver:hover {
+            background: #444;
+        }
+        .estado-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .estado-pendiente-badge {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+        .estado-completado-badge {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .historial-vacio {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+
+/* ===== GASTOS.HTML ===== */
+        .total-gastos {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin: 20px 0;
+            text-align: right;
+            font-size: 18px;
+        }
+        .total-gastos span {
+            font-weight: bold;
+            color: #d4a373;
+            font-size: 24px;
+        }
+        .btn-accion {
+            display: inline-block;
+            margin: 10px 10px 20px 0;
+        }
+        .btn-eliminar {
+            padding: 5px 12px;
+            font-size: 12px;
+            background: #d32f2f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-eliminar:hover {
+            background: #b71c1c;
+        }
+        .categoria-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .categoria-purina { background: #fff3e0; color: #e65100; }
+        .categoria-compra { background: #e8f5e9; color: #2e7d32; }
+        .categoria-retiro { background: #fce4ec; color: #c62828; }
+        .categoria-veterinario { background: #e3f2fd; color: #0d47a1; }
+        .categoria-transporte { background: #f3e5f5; color: #6a1b9a; }
+        .categoria-otros { background: #f5f5f5; color: #616161; }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            background: white;
+            border-radius: 12px;
+        }
+        .btn-gasto {
+            background: #d4a373;
+        }
+        .btn-gasto:hover {
+            background: #b8895c;
+        }
+
+        /* ===== INDEX.HTML ===== */
+    /* Estilos para el modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .modal-content h2 {
+            margin-bottom: 10px;
+        }
+        .modal-content p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .modal-content input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .modal-actions button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-guardar {
+            background: #2d7d46;
+            color: white;
+        }
+        .btn-guardar:hover {
+            background: #1e5a32;
+        }
+        .btn-cancelar {
+            background: #666;
+            color: white;
+        }
+        .btn-cancelar:hover {
+            background: #444;
+        }
+        .btn-editar-cerdos {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #2d7d46;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-editar-cerdos:hover {
+            background: #1e5a32;
+        }
+        .card {
+            position: relative;
+        }
+
+        /* ===== NUEVO-GASTO.HTML ===== */
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #d4a373;
+            box-shadow: 0 0 0 3px rgba(212, 163, 115, 0.2);
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            font-size: 18px;
+            font-weight: 600;
+            background: #d4a373;
+        }
+        .btn-submit:hover {
+            background: #b8895c;
+        }
+        .btn-volver {
+            display: inline-block;
+            margin-top: 15px;
+            background: #666;
+        }
+        .btn-volver:hover {
+            background: #444;
+        }
+        .mensaje-exito {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .mensaje-error {
+            background: #ffebee;
+            color: #d32f2f;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .mostrar {
+            display: block !important;
+        }
+
+
+        /* ===== NUEVA.VENTA.HTML ===== */
+
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #2d7d46;
+            box-shadow: 0 0 0 3px rgba(45, 125, 70, 0.2);
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .btn-volver {
+            display: inline-block;
+            margin-top: 15px;
+            background: #666;
+        }
+        .btn-volver:hover {
+            background: #444;
+        }
+        .mensaje-exito {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .mensaje-error {
+            background: #ffebee;
+            color: #d32f2f;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .mostrar {
+            display: block !important;
+        }
