@@ -48,8 +48,8 @@ async function cargarDashboard() {
 
         // CALCULAR LOS TOTALES CORRECTOS
         const totalIngresos = ingresos.reduce((sum, v) => sum + v.valor, 0);
-        const totalCobrado = ingresos.reduce((sum, v) => sum + v.pago_realizado, 0);
         const totalDeudas = ingresos.reduce((sum, v) => sum + v.pago_pendiente, 0);
+        const totalCobrado = totalIngresos - totalDeudas; // 💰 LO QUE REALMENTE TIENES
         const totalGastos = gastos.reduce((sum, v) => sum + v.monto, 0);
 
         // Actualizar tarjetas
