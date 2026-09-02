@@ -710,3 +710,76 @@ body.dark-mode .form-abono select {
     border: 1px solid #555;
     color: #eee;
 }
+
+/* ==========================================
+   15. RESPONSIVE PARA MÓVILES (GRÁFICA Y TABLAS)
+   ========================================== */
+#contenedor-grafica {
+    width: 100%;
+    max-width: 350px;
+    margin: 0 auto;
+}
+
+/* En móviles, las tablas deben poder hacer scroll horizontal */
+@media (max-width: 600px) {
+    .tabla {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .grupo-fecha-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .grupo-fecha-header .resumen-dia {
+        font-size: 11px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+    
+    .grupo-fecha-header .resumen-dia span {
+        padding: 2px 8px;
+        font-size: 11px;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    nav {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    nav ul {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .resumen-global {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .resumen-global .item .numero {
+        font-size: 20px;
+    }
+    
+    .factura-datos {
+        grid-template-columns: 1fr;
+    }
+    
+    .detalle-card,
+    .historial-pagos-factura,
+    .form-abono {
+        max-width: 100%;
+        padding: 15px;
+    }
+}
