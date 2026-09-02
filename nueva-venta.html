@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🐖 Nueva Venta</title>
-    <link rel="stylesheet" href="css/estilo.css">
+    <title>🐖 Detalle de Venta</title>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <div class="container">
-        <!-- MENU -->
         <nav>
             <h1>🐖 PORCINOS</h1>
             <ul>
@@ -18,146 +17,70 @@
             </ul>
         </nav>
 
-        <div class="form-container">
-            <h2>📝 Nueva Venta</h2>
-            <p style="color: #666; margin-bottom: 20px;">Registra una nueva venta de carne o cerdo</p>
-
-            <!-- Mensajes -->
-            <div id="mensaje-exito" class="mensaje-exito"> Venta registrada exitosamente</div>
-            <div id="mensaje-error" class="mensaje-error"> Error al registrar la venta</div>
-
-            <!-- Formulario -->
-            <form id="form-nueva-venta">
-                <div class="form-group">
-                    <label for="nombre">Nombre del comprador *</label>
-                    <input type="text" id="nombre" placeholder="Ej: Pedro Pérez" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="producto">Producto *</label>
-                    <input type="text" id="producto" placeholder="Ej: Cerdo 85kg" required>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="valor">Valor total ($) *</label>
-                        <input type="number" id="valor" placeholder="598500" required min="1">
-                    </div>
-                    <div class="form-group">
-                        <label for="pago-inicial">Pago inicial ($)</label>
-                        <input type="number" id="pago-inicial" placeholder="300000" min="0" value="0">
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="metodo-pago">Método de pago *</label>
-                        <select id="metodo-pago" required>
-                            <option value="efectivo">💵 Efectivo</option>
-                            <option value="transferencia">🏦 Transferencia</option>
-                            <option value="nequi">📱 Nequi</option>
-                            <option value="daviplata">📱 Daviplata</option>
-                            <option value="pendiente">⏳ Pendiente</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="fecha-sacrificio">Fecha de sacrificio</label>
-                        <input type="date" id="fecha-sacrificio">
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-submit">✅ Registrar Venta</button>
-            </form>
-
-            <a href="ventas.html" class="btn btn-volver">⬅ Volver a Ventas</a>
+        <!-- ESTRUCTURA TIPO FACTURA -->
+        <div class="factura-header">
+            <h2>🧾 Factura de Venta</h2>
+            <div class="factura-numero">
+                <strong>ID:</strong> <span id="factura-id">Cargando...</span>
+            </div>
         </div>
+
+        <div class="detalle-card" id="detalle-venta">
+            <div class="loading">⏳ Cargando detalles...</div>
+        </div>
+
+        <!-- HISTORIAL DE PAGOS TIPO FACTURA -->
+        <div class="historial-pagos-factura">
+            <h3>📜 Historial de Pagos</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Monto</th>
+                        <th>Método</th>
+                    </tr>
+                </thead>
+                <tbody id="historial-pagos">
+                    <tr>
+                        <td colspan="3" class="historial-vacio">No hay pagos registrados</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- REGISTRAR NUEVO ABONO -->
+        <div class="form-abono">
+            <h3 style="margin-bottom: 15px; color: var(--gris-texto);">💰 Registrar Nuevo Abono</h3>
+            <form id="form-abono">
+                <div>
+                    <label for="monto-abono">Monto del abono ($):</label>
+                    <input type="number" id="monto-abono" placeholder="Ej: 100000" required min="1" step="0.01">
+                </div>
+                <div>
+                    <label for="metodo-abono">Método de pago:</label>
+                    <select id="metodo-abono">
+                        <option value="efectivo">Efectivo</option>
+                        <option value="transferencia">Transferencia</option>
+                        <option value="nequi">Nequi</option>
+                        <option value="daviplata">Daviplata</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">✅ Registrar Abono</button>
+            </form>
+        </div>
+
+        <a href="ventas.html" class="btn btn-volver">⬅ Volver a Ventas</a>
 
         <footer>
             <p>🐖 Sistema de Gestión Porcina v1.0</p>
         </footer>
     </div>
 
+    <!-- BOTÓN MODO OSCURO -->
+    <button id="btn-dark-mode" title="Cambiar tema">🌙</button>
+
     <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script type="module">
-        import { supabaseClient } from './js/config.js';
-
-        console.log("📄 Formulario de nueva venta cargado");
-
-        const form = document.getElementById('form-nueva-venta');
-        const mensajeExito = document.getElementById('mensaje-exito');
-        const mensajeError = document.getElementById('mensaje-error');
-
-        form.addEventListener('submit', async function(event) {
-            event.preventDefault();
-
-            // Ocultar mensajes anteriores
-            mensajeExito.classList.remove('mostrar');
-            mensajeError.classList.remove('mostrar');
-
-            // Obtener datos del formulario
-            const nombre = document.getElementById('nombre').value.trim();
-            const producto = document.getElementById('producto').value.trim();
-            const valor = parseFloat(document.getElementById('valor').value);
-            const pagoInicial = parseFloat(document.getElementById('pago-inicial').value) || 0;
-            const metodoPago = document.getElementById('metodo-pago').value;
-            const fechaSacrificio = document.getElementById('fecha-sacrificio').value || null;
-
-            // Validar
-            if (!nombre || !producto || !valor || valor <= 0) {
-                mensajeError.textContent = '❌ Por favor, completa todos los campos obligatorios';
-                mensajeError.classList.add('mostrar');
-                return;
-            }
-
-            if (pagoInicial > valor) {
-                mensajeError.textContent = '❌ El pago inicial no puede ser mayor al valor total';
-                mensajeError.classList.add('mostrar');
-                return;
-            }
-
-            try {
-                // Insertar en Supabase
-                const { data, error } = await supabaseClient
-                    .from('ingresos')
-                    .insert([
-                        {
-                            nombre: nombre,
-                            producto: producto,
-                            valor: valor,
-                            pago_realizado: pagoInicial,
-                            metodo_pago: metodoPago,
-                            fecha_sacrificio: fechaSacrificio,
-                            fecha_pago: pagoInicial > 0 ? new Date().toISOString().split('T')[0] : null
-                        }
-                    ]);
-
-                if (error) {
-                    console.error('❌ Error:', error);
-                    mensajeError.textContent = `❌ Error al registrar: ${error.message}`;
-                    mensajeError.classList.add('mostrar');
-                    return;
-                }
-
-                // Éxito
-                mensajeExito.textContent = `✅ Venta registrada exitosamente para "${nombre}"`;
-                mensajeExito.classList.add('mostrar');
-
-                // Limpiar formulario
-                form.reset();
-                document.getElementById('pago-inicial').value = 0;
-
-                // Después de 2 segundos, redirigir
-                setTimeout(() => {
-                    window.location.href = 'ventas.html';
-                }, 2000);
-
-            } catch (error) {
-                console.error('❌ Error:', error);
-                mensajeError.textContent = `❌ Error inesperado: ${error.message}`;
-                mensajeError.classList.add('mostrar');
-            }
-        });
-    </script>
+    <script type="module" src="js/detalle_venta.js"></script>
 </body>
 </html>

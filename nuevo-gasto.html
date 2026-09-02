@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🐖 Nuevo Gasto</title>
-    <link rel="stylesheet" href="css/estilo.css">
+    <!-- Usamos el CSS unificado -->
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <div class="container">
@@ -64,71 +65,12 @@
         </footer>
     </div>
 
+    <!-- Librerías CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script type="module">
-        import { supabaseClient } from './js/config.js';
+    
+    <!-- Nuestro JavaScript externo -->
+    <script type="module" src="js/nuevo-gasto.js"></script>
 
-        console.log("📄 Formulario de nuevo gasto cargado");
-
-        const form = document.getElementById('form-nuevo-gasto');
-        const mensajeExito = document.getElementById('mensaje-exito');
-        const mensajeError = document.getElementById('mensaje-error');
-
-        // Fecha por defecto: hoy
-        document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
-
-        form.addEventListener('submit', async function(event) {
-            event.preventDefault();
-
-            mensajeExito.classList.remove('mostrar');
-            mensajeError.classList.remove('mostrar');
-
-            const tipoGasto = document.getElementById('tipo-gasto').value;
-            const concepto = document.getElementById('concepto').value.trim();
-            const monto = parseFloat(document.getElementById('monto').value);
-            const fecha = document.getElementById('fecha').value;
-
-            if (!concepto || !monto || monto <= 0 || !fecha) {
-                mensajeError.textContent = '❌ Por favor, completa todos los campos obligatorios';
-                mensajeError.classList.add('mostrar');
-                return;
-            }
-
-            try {
-                const { data, error } = await supabaseClient
-                    .from('gastos')
-                    .insert([
-                        {
-                            tipo_gasto: tipoGasto,
-                            concepto: concepto,
-                            monto: monto,
-                            fecha: fecha
-                        }
-                    ]);
-
-                if (error) {
-                    console.error('❌ Error:', error);
-                    mensajeError.textContent = `❌ Error al registrar: ${error.message}`;
-                    mensajeError.classList.add('mostrar');
-                    return;
-                }
-
-                mensajeExito.textContent = `✅ Gasto "${concepto}" registrado exitosamente`;
-                mensajeExito.classList.add('mostrar');
-
-                form.reset();
-                document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
-
-                setTimeout(() => {
-                    window.location.href = 'gastos.html';
-                }, 2000);
-
-            } catch (error) {
-                console.error('❌ Error:', error);
-                mensajeError.textContent = `❌ Error inesperado: ${error.message}`;
-                mensajeError.classList.add('mostrar');
-            }
-        });
-    </script>
+    <button id="btn-dark-mode" title="Cambiar tema">🌙</button>
 </body>
 </html>
