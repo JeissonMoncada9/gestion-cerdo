@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🐖 Detalle de Venta</title>
+    <title>🐖 Nueva Venta</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <div class="container">
+        <!-- MENU -->
         <nav>
             <h1>🐖 PORCINOS</h1>
             <ul>
@@ -17,59 +18,59 @@
             </ul>
         </nav>
 
-        <!-- ESTRUCTURA TIPO FACTURA -->
-        <div class="factura-header">
-            <h2>🧾 Factura de Venta</h2>
-            <div class="factura-numero">
-                <strong>ID:</strong> <span id="factura-id">Cargando...</span>
-            </div>
-        </div>
+        <div class="form-container">
+            <h2>📝 Nueva Venta</h2>
+            <p style="color: #666; margin-bottom: 20px;">Registra una nueva venta de carne o cerdo</p>
 
-        <div class="detalle-card" id="detalle-venta">
-            <div class="loading">⏳ Cargando detalles...</div>
-        </div>
+            <!-- Mensajes -->
+            <div id="mensaje-exito" class="mensaje-exito"> Venta registrada exitosamente</div>
+            <div id="mensaje-error" class="mensaje-error"> Error al registrar la venta</div>
 
-        <!-- HISTORIAL DE PAGOS TIPO FACTURA -->
-        <div class="historial-pagos-factura">
-            <h3>📜 Historial de Pagos</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Monto</th>
-                        <th>Método</th>
-                    </tr>
-                </thead>
-                <tbody id="historial-pagos">
-                    <tr>
-                        <td colspan="3" class="historial-vacio">No hay pagos registrados</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- REGISTRAR NUEVO ABONO -->
-        <div class="form-abono">
-            <h3 style="margin-bottom: 15px; color: var(--gris-texto);">💰 Registrar Nuevo Abono</h3>
-            <form id="form-abono">
-                <div>
-                    <label for="monto-abono">Monto del abono ($):</label>
-                    <input type="number" id="monto-abono" placeholder="Ej: 100000" required min="1" step="0.01">
+            <!-- Formulario -->
+            <form id="form-nueva-venta">
+                <div class="form-group">
+                    <label for="nombre">Nombre del comprador *</label>
+                    <input type="text" id="nombre" placeholder="Ej: Pedro Pérez" required>
                 </div>
-                <div>
-                    <label for="metodo-abono">Método de pago:</label>
-                    <select id="metodo-abono">
-                        <option value="efectivo">Efectivo</option>
-                        <option value="transferencia">Transferencia</option>
-                        <option value="nequi">Nequi</option>
-                        <option value="daviplata">Daviplata</option>
-                    </select>
+
+                <div class="form-group">
+                    <label for="producto">Producto *</label>
+                    <input type="text" id="producto" placeholder="Ej: Cerdo 85kg" required>
                 </div>
-                <button type="submit" class="btn">✅ Registrar Abono</button>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="valor">Valor total ($) *</label>
+                        <input type="number" id="valor" placeholder="598500" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="pago-inicial">Pago inicial ($)</label>
+                        <input type="number" id="pago-inicial" placeholder="300000" min="0" value="0">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="metodo-pago">Método de pago *</label>
+                        <select id="metodo-pago" required>
+                            <option value="efectivo">💵 Efectivo</option>
+                            <option value="transferencia">🏦 Transferencia</option>
+                            <option value="nequi">📱 Nequi</option>
+                            <option value="daviplata">📱 Daviplata</option>
+                            <option value="pendiente">⏳ Pendiente</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha-sacrificio">Fecha de sacrificio</label>
+                        <input type="date" id="fecha-sacrificio">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-submit">✅ Registrar Venta</button>
             </form>
-        </div>
 
-        <a href="ventas.html" class="btn btn-volver">⬅ Volver a Ventas</a>
+            <a href="ventas.html" class="btn btn-volver">⬅ Volver a Ventas</a>
+        </div>
 
         <footer>
             <p>🐖 Sistema de Gestión Porcina v1.0</p>
@@ -81,6 +82,6 @@
 
     <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script type="module" src="js/detalle_venta.js"></script>
+    <script type="module" src="js/nueva_venta.js"></script>
 </body>
 </html>
