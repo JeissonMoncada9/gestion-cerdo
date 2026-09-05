@@ -267,8 +267,17 @@ footer {
     align-items: center;
     position: relative;
     width: 100%;
-    height: 400px;
-    margin: 20px 0;
+    max-width: 550px; /* Tamaño máximo en PC */
+    height: auto;
+    aspect-ratio: 1 / 1; /* Mantiene el cuadrado perfecto */
+    margin: 0 auto;
+}
+
+/* En móviles se ajusta solo */
+@media (max-width: 600px) {
+    #contenedor-grafica {
+        max-width: 320px;
+    }
 }
 
 .segmento {
