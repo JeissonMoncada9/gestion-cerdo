@@ -89,9 +89,9 @@ async function cargarDashboard() {
 function dibujarGraficaCircular(totalCobrado, totalDeudas, totalGastos) {
     // Datos basados en el dinero REAL en caja, deuda y gastos
     const data = [
-        { label: "Cobrado", value: totalCobrado > 0 ? totalCobrado : 1, color: "#29b6f6" }, 
-        { label: "Deudas", value: totalDeudas > 0 ? totalDeudas : 1, color: "#ec407a" },
-        { label: "Gastos", value: totalGastos > 0 ? totalGastos : 1, color: "#ffa726" },
+        { label: "Cobrado", value: totalCobrado > 0 ? totalCobrado : 1, color: "#4abe06" }, 
+        { label: "Deudas", value: totalDeudas > 0 ? totalDeudas : 1, color: "#f7df08" },
+        { label: "Gastos", value: totalGastos > 0 ? totalGastos : 1, color: "#ff2d26" },
     ];
 
     const dataFiltrada = data.filter(d => d.value > 0);
@@ -139,7 +139,7 @@ function dibujarGraficaCircular(totalCobrado, totalDeudas, totalGastos) {
         .text(d => d.data.label + " $" + d.data.value.toLocaleString());
 
     // Actualizar el centro de la gráfica (Dinero cobrado)
-    document.querySelector('#centro-grafica span').textContent = `$${totalCobrado.toLocaleString()}`;
+    document.querySelector('#centro-grafica span').textContent = `$${(totalCobrado + totalDeudas).toLocaleString()}`;
 }
 
 // ============================================
